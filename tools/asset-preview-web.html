@@ -1,0 +1,1126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BeamNG DAE Web Preflight</title>
+  <style>
+    :root {
+      --bg: #11151c;
+      --panel: #1a1f28;
+      --panel-2: #222938;
+      --text: #e8edf5;
+      --muted: #a7b3c5;
+      --ok: #4ac26b;
+      --warn: #ffb14a;
+      --fail: #ff5b5b;
+      --accent: #70d4ff;
+      --grid: #2b3344;
+      --line: #9ddfff;
+      --border: #303a4d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: radial-gradient(circle at 20% 0%, #19202b 0%, var(--bg) 45%);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 2fr 1fr;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel), #161b23);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #242d3b, var(--panel));
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .body { padding: 12px; }
+
+    .full { grid-column: 1 / -1; }
+
+    #viewport {
+      width: 100%;
+      height: 66vh;
+      display: block;
+      background: #151a22;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    input[type="file"] {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      width: 100%;
+    }
+
+    button {
+      background: #2a3447;
+      color: var(--text);
+      border: 1px solid #425171;
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover { background: #34425a; }
+
+    .control-select {
+      min-width: 280px;
+      max-width: 460px;
+      background: #2a3447;
+      color: var(--text);
+      border: 1px solid #425171;
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .sub-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+      align-items: center;
+    }
+
+    label.switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .status {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .status.ok { color: var(--ok); }
+    .status.warn { color: var(--warn); }
+    .status.fail { color: var(--fail); }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--panel-2);
+    }
+
+    .pill .k {
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .pill .v {
+      font-weight: 700;
+      margin-top: 4px;
+      font-size: 1.05rem;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.4;
+      max-height: 26vh;
+      overflow: auto;
+    }
+
+    .drop {
+      border: 1px dashed #4d5f82;
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .drop.active {
+      border-color: var(--accent);
+      color: #d5f2ff;
+      background: rgba(112, 212, 255, 0.08);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 980px) {
+      .wrap { grid-template-columns: 1fr; }
+      #viewport { height: 48vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card full">
+      <div class="head">BeamNG DAE Web Preflight</div>
+      <div class="body">
+        <div class="controls">
+          <input id="fileInput" type="file" accept=".dae,.DAE,text/xml,application/xml">
+          <input id="shapesDirInput" type="file" webkitdirectory directory multiple style="display:none">
+          <button id="scanShapesBtn" type="button">Quick Scan Folder</button>
+          <select id="viewMode" class="control-select" style="min-width:220px;max-width:260px;">
+            <option value="wireframe">Wireframe</option>
+            <option value="rendered">Rendered</option>
+            <option value="material">Material</option>
+          </select>
+          <select id="modelSelect" class="control-select">
+            <option value="">Select detected model...</option>
+          </select>
+          <button id="sampleBtn" type="button">Load Sample XML</button>
+          <label class="switch">
+            <input id="requireCollision" type="checkbox">
+            Require collision naming (Colmesh/collision)
+          </label>
+        </div>
+        <div class="sub-controls">
+          <select id="sourceSelect" class="control-select">
+            <option value="all">All Sources</option>
+          </select>
+          <button id="setDefaultShapesBtn" type="button">Set Default Shapes Folder</button>
+          <button id="addSourceBtn" type="button">Add Custom Folder</button>
+          <button id="refreshSourcesBtn" type="button">Refresh Sources</button>
+          <button id="removeSourceBtn" type="button">Remove Selected Source</button>
+        </div>
+        <div id="dropZone" class="drop">Drop a .dae file here</div>
+        <canvas id="viewport" width="1200" height="700"></canvas>
+        <div class="hint">Use View Mode to switch between Wireframe, Rendered, and Material previews. Final in-game look still depends on BeamNG shaders/material setup.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">Status</div>
+      <div class="body">
+        <div id="status" class="status warn">Status: WAITING</div>
+        <div id="fileName" class="hint">No file selected.</div>
+        <div class="stat-grid">
+          <div class="pill"><div class="k">Geometry</div><div id="geomCount" class="v">0</div></div>
+          <div class="pill"><div class="k">Triangles</div><div id="triCount" class="v">0</div></div>
+          <div class="pill"><div class="k">Vertices</div><div id="vertCount" class="v">0</div></div>
+          <div class="pill"><div class="k">Collision Geometries</div><div id="colGeomCount" class="v">0</div></div>
+        </div>
+        <div class="pill"><div class="k">Collision</div><div id="collisionStatus" class="v">WARN</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">Findings</div>
+      <div class="body">
+        <strong>Errors</strong>
+        <ul id="errors" class="list"></ul>
+        <strong>Warnings</strong>
+        <ul id="warnings" class="list"></ul>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const DB_NAME = 'beamng-asset-preview-db';
+    const DB_VERSION = 1;
+    const DB_STORE = 'sources';
+    const FS_SUPPORTED = typeof window.showDirectoryPicker === 'function';
+    const QUICK_SCAN_SOURCE_ID = 'temp_quick_scan';
+
+    const els = {
+      fileInput: document.getElementById('fileInput'),
+      shapesDirInput: document.getElementById('shapesDirInput'),
+      scanShapesBtn: document.getElementById('scanShapesBtn'),
+      viewMode: document.getElementById('viewMode'),
+      setDefaultShapesBtn: document.getElementById('setDefaultShapesBtn'),
+      addSourceBtn: document.getElementById('addSourceBtn'),
+      refreshSourcesBtn: document.getElementById('refreshSourcesBtn'),
+      removeSourceBtn: document.getElementById('removeSourceBtn'),
+      sourceSelect: document.getElementById('sourceSelect'),
+      modelSelect: document.getElementById('modelSelect'),
+      sampleBtn: document.getElementById('sampleBtn'),
+      requireCollision: document.getElementById('requireCollision'),
+      dropZone: document.getElementById('dropZone'),
+      canvas: document.getElementById('viewport'),
+      status: document.getElementById('status'),
+      fileName: document.getElementById('fileName'),
+      geomCount: document.getElementById('geomCount'),
+      triCount: document.getElementById('triCount'),
+      vertCount: document.getElementById('vertCount'),
+      colGeomCount: document.getElementById('colGeomCount'),
+      collisionStatus: document.getElementById('collisionStatus'),
+      errors: document.getElementById('errors'),
+      warnings: document.getElementById('warnings')
+    };
+
+    const ctx = els.canvas.getContext('2d');
+    const sourceMap = new Map();
+    const modelMap = new Map();
+    let currentSelectionKey = '';
+    let lastRenderData = null;
+
+    function localNameList(root, name) {
+      const out = [];
+      const nodes = root.getElementsByTagName('*');
+      for (const n of nodes) {
+        if ((n.localName || n.nodeName) === name) out.push(n);
+      }
+      return out;
+    }
+
+    function attr(node, name) {
+      return node && node.getAttribute ? (node.getAttribute(name) || '') : '';
+    }
+
+    function text(node) {
+      return node && node.textContent ? node.textContent.trim() : '';
+    }
+
+    function parseNums(s, asInt = false) {
+      if (!s) return [];
+      const parts = s.trim().split(/\s+/).filter(Boolean);
+      return parts.map(v => asInt ? parseInt(v, 10) : parseFloat(v));
+    }
+
+    function uid(prefix = 'src') {
+      return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function drawGrid() {
+      const w = els.canvas.width;
+      const h = els.canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#151a22';
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = '#2b3344';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+    }
+
+    function updateLists(ul, items) {
+      ul.innerHTML = '';
+      if (!items.length) {
+        const li = document.createElement('li');
+        li.textContent = 'None';
+        ul.appendChild(li);
+        return;
+      }
+      for (const it of items) {
+        const li = document.createElement('li');
+        li.textContent = it;
+        ul.appendChild(li);
+      }
+    }
+
+    function setStatus(level, label) {
+      els.status.className = `status ${level.toLowerCase()}`;
+      els.status.textContent = `Status: ${label}`;
+    }
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(DB_STORE)) {
+            db.createObjectStore(DB_STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbGetAllSources() {
+      const db = await openDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, 'readonly');
+        const store = tx.objectStore(DB_STORE);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbSaveSource(rec) {
+      const db = await openDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).put(rec);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function idbDeleteSource(id) {
+      const db = await openDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function sourcePermission(handle, mode = 'read') {
+      if (!handle || !handle.queryPermission) return 'denied';
+      try {
+        return await handle.queryPermission({ mode });
+      } catch {
+        return 'denied';
+      }
+    }
+
+    async function ensureSourcePermission(rec) {
+      if (!rec.handle || !rec.handle.requestPermission) return false;
+      const current = await sourcePermission(rec.handle, 'read');
+      if (current === 'granted') return true;
+      try {
+        const next = await rec.handle.requestPermission({ mode: 'read' });
+        return next === 'granted';
+      } catch {
+        return false;
+      }
+    }
+
+    function updateSourceSelect() {
+      const current = els.sourceSelect.value;
+      els.sourceSelect.innerHTML = '';
+      const all = document.createElement('option');
+      all.value = 'all';
+      all.textContent = 'All Sources';
+      els.sourceSelect.appendChild(all);
+
+      const list = Array.from(sourceMap.values()).sort((a, b) => {
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        return a.label.localeCompare(b.label);
+      });
+
+      for (const src of list) {
+        const opt = document.createElement('option');
+        opt.value = src.id;
+        const marker = src.isDefault ? ' [default]' : '';
+        opt.textContent = `${src.label}${marker}`;
+        els.sourceSelect.appendChild(opt);
+      }
+
+      if (current && [...els.sourceSelect.options].some(o => o.value === current)) {
+        els.sourceSelect.value = current;
+      } else {
+        els.sourceSelect.value = 'all';
+      }
+    }
+
+    function updateModelSelect() {
+      const filterSource = els.sourceSelect.value || 'all';
+      const current = currentSelectionKey;
+      els.modelSelect.innerHTML = '';
+
+      const allModels = Array.from(modelMap.entries())
+        .filter(([, rec]) => filterSource === 'all' || rec.sourceId === filterSource)
+        .sort((a, b) => a[0].localeCompare(b[0]));
+
+      const ph = document.createElement('option');
+      ph.value = '';
+      ph.textContent = allModels.length
+        ? `Select detected model (${allModels.length})...`
+        : 'No models found. Add/refresh a source.';
+      els.modelSelect.appendChild(ph);
+
+      for (const [key] of allModels) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = key;
+        els.modelSelect.appendChild(opt);
+      }
+
+      if (current && modelMap.has(current) && [...els.modelSelect.options].some(o => o.value === current)) {
+        els.modelSelect.value = current;
+      }
+    }
+
+    function analyze(xml, sourceName) {
+      const errors = [];
+      const warnings = [];
+      const collisionPattern = /(^|[_.-])(colmesh|collision|collider|col)([_.-]|$)/i;
+
+      if (!xml || !xml.documentElement || xml.documentElement.localName !== 'COLLADA') {
+        errors.push('Root node is not COLLADA.');
+      }
+
+      const upAxis = localNameList(xml, 'up_axis')[0];
+      const axis = text(upAxis);
+      if (axis && axis !== 'Z_UP') {
+        warnings.push(`up_axis is '${axis}', expected Z_UP for BeamNG.`);
+      }
+
+      const geometries = localNameList(xml, 'geometry');
+      if (!geometries.length) errors.push('No geometry entries found.');
+
+      const triNodes = localNameList(xml, 'triangles');
+      const polyNodes = localNameList(xml, 'polylist');
+      const polygons = localNameList(xml, 'polygons');
+      if (!triNodes.length && !polyNodes.length && !polygons.length) {
+        warnings.push('No triangles/polylist/polygons found.');
+      }
+
+      const instances = localNameList(xml, 'instance_geometry');
+      if (!instances.length) {
+        warnings.push('No instance_geometry nodes found in visual scene. Mesh may not render in BeamNG.');
+      }
+
+      let triCount = 0;
+      for (const t of triNodes) triCount += parseInt(attr(t, 'count') || '0', 10) || 0;
+      for (const p of polyNodes) triCount += parseInt(attr(p, 'count') || '0', 10) || 0;
+
+      let vertCount = 0;
+      for (const src of localNameList(xml, 'source')) {
+        const id = attr(src, 'id');
+        if (!/positions/i.test(id)) continue;
+        const fa = localNameList(src, 'float_array')[0];
+        if (!fa) continue;
+        const c = parseInt(attr(fa, 'count') || '0', 10);
+        if (Number.isFinite(c) && c > 0) vertCount += Math.floor(c / 3);
+      }
+
+      for (const image of localNameList(xml, 'image')) {
+        const init = localNameList(image, 'init_from')[0];
+        const p = text(init);
+        if (!p) continue;
+        if (/^file:\/\//i.test(p) || /^[a-z]:\//i.test(p) || /^\/[a-z]:\//i.test(p) || /^[a-z]:\\/i.test(p)) {
+          warnings.push(`Absolute texture path/URI: ${p}`);
+        }
+      }
+
+      const collisionGeo = new Set();
+      for (const g of geometries) {
+        const id = attr(g, 'id');
+        const name = attr(g, 'name');
+        if (collisionPattern.test(id) || collisionPattern.test(name)) {
+          if (id) collisionGeo.add(id);
+        }
+      }
+
+      for (const n of localNameList(xml, 'node')) {
+        const id = attr(n, 'id');
+        const name = attr(n, 'name');
+        if (!(collisionPattern.test(id) || collisionPattern.test(name))) continue;
+        for (const ig of localNameList(n, 'instance_geometry')) {
+          const url = attr(ig, 'url').replace(/^#/, '');
+          if (url) collisionGeo.add(url);
+        }
+      }
+
+      const collisionGood = collisionGeo.size > 0;
+      if (!collisionGood) {
+        warnings.push('No collision mesh naming found (use Colmesh-1 / collision_*).');
+      }
+
+      let status = 'GOOD';
+      if (errors.length) status = 'FAIL';
+      else if (warnings.length) status = 'WARN';
+
+      if (els.requireCollision.checked && !collisionGood) {
+        status = 'FAIL';
+      }
+
+      return {
+        sourceName,
+        status,
+        errors,
+        warnings,
+        geometryCount: geometries.length,
+        triCount,
+        vertCount,
+        colGeomCount: collisionGeo.size,
+        collisionGood
+      };
+    }
+
+    function collectRenderData(xml) {
+      const triangles = [];
+      const points3d = [];
+
+      const geometryById = new Map();
+      for (const g of localNameList(xml, 'geometry')) geometryById.set(attr(g, 'id'), g);
+
+      for (const geo of geometryById.values()) {
+        const verticesById = new Map();
+        for (const v of localNameList(geo, 'vertices')) verticesById.set(attr(v, 'id'), v);
+
+        const sourceById = new Map();
+        for (const s of localNameList(geo, 'source')) sourceById.set(attr(s, 'id'), s);
+
+        for (const tri of localNameList(geo, 'triangles')) {
+          const inputs = localNameList(tri, 'input');
+          if (!inputs.length) continue;
+          const materialName = attr(tri, 'material') || 'default';
+
+          const vInput = inputs.find(i => attr(i, 'semantic') === 'VERTEX');
+          if (!vInput) continue;
+
+          const vOffset = parseInt(attr(vInput, 'offset') || '0', 10);
+          const vRef = attr(vInput, 'source').replace(/^#/, '');
+          const verticesNode = verticesById.get(vRef);
+          if (!verticesNode) continue;
+
+          const posInput = localNameList(verticesNode, 'input').find(i => attr(i, 'semantic') === 'POSITION');
+          if (!posInput) continue;
+
+          const posRef = attr(posInput, 'source').replace(/^#/, '');
+          const src = sourceById.get(posRef);
+          if (!src) continue;
+
+          const fa = localNameList(src, 'float_array')[0];
+          if (!fa) continue;
+
+          const raw = parseNums(text(fa), false);
+          if (raw.length < 3) continue;
+
+          const pos = [];
+          for (let i = 0; i + 2 < raw.length; i += 3) {
+            const x = raw[i];
+            const y = raw[i + 1];
+            const z = raw[i + 2];
+            const p = { x, y, z };
+            pos.push(p);
+            points3d.push(p);
+          }
+
+          const pNode = localNameList(tri, 'p')[0];
+          if (!pNode) continue;
+          const idx = parseNums(text(pNode), true);
+          if (!idx.length) continue;
+
+          let maxOffset = 0;
+          for (const input of inputs) {
+            const off = parseInt(attr(input, 'offset') || '0', 10);
+            if (off > maxOffset) maxOffset = off;
+          }
+          const stride = maxOffset + 1;
+          const triN = Math.floor(idx.length / (3 * stride));
+
+          for (let t = 0; t < triN; t++) {
+            const b = t * 3 * stride;
+            const i0 = idx[b + vOffset];
+            const i1 = idx[b + stride + vOffset];
+            const i2 = idx[b + (2 * stride) + vOffset];
+            if (i0 < 0 || i1 < 0 || i2 < 0) continue;
+            if (i0 >= pos.length || i1 >= pos.length || i2 >= pos.length) continue;
+            const p0 = pos[i0], p1 = pos[i1], p2 = pos[i2];
+            triangles.push({ a: p0, b: p1, c: p2, material: materialName });
+          }
+        }
+      }
+
+      return { triangles, points3d };
+    }
+
+    function projectScene(points3d) {
+      const yaw = -Math.PI / 4;
+      const pitch = Math.PI / 6;
+      const cy = Math.cos(yaw), sy = Math.sin(yaw);
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
+
+      const transformed = points3d.map((p) => {
+        const x1 = cy * p.x - sy * p.y;
+        const y1 = sy * p.x + cy * p.y;
+        const z1 = p.z;
+        const y2 = cp * y1 - sp * z1;
+        const z2 = sp * y1 + cp * z1;
+        return { x: x1, y: y2, z: z2 };
+      });
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const p of transformed) {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      }
+
+      const w = els.canvas.width;
+      const h = els.canvas.height;
+      const spanX = Math.max(0.0001, maxX - minX);
+      const spanY = Math.max(0.0001, maxY - minY);
+      const margin = 26;
+      const sx = (w - margin * 2) / spanX;
+      const syScale = (h - margin * 2) / spanY;
+      const s = Math.min(sx, syScale);
+
+      return {
+        toScreen: (p) => {
+          const x = (p.x - minX) * s + margin;
+          const y = h - ((p.y - minY) * s + margin);
+          return { x, y };
+        },
+        rotate: (p) => {
+          const x1 = cy * p.x - sy * p.y;
+          const y1 = sy * p.x + cy * p.y;
+          const z1 = p.z;
+          const y2 = cp * y1 - sp * z1;
+          const z2 = sp * y1 + cp * z1;
+          return { x: x1, y: y2, z: z2 };
+        }
+      };
+    }
+
+    function hashColor(name) {
+      let h = 0;
+      for (let i = 0; i < name.length; i++) h = ((h << 5) - h + name.charCodeAt(i)) | 0;
+      const hue = Math.abs(h) % 360;
+      return `hsl(${hue} 65% 55%)`;
+    }
+
+    function drawPreview(data) {
+      drawGrid();
+      if (!data.points3d.length || !data.triangles.length) {
+        ctx.fillStyle = '#e6edf5';
+        ctx.font = 'bold 24px Segoe UI';
+        ctx.fillText('No mesh preview data found', 28, 46);
+        return;
+      }
+
+      const mode = els.viewMode.value;
+      const prj = projectScene(data.points3d);
+      const light = { x: 0.35, y: 0.45, z: 0.85 };
+      const L = Math.hypot(light.x, light.y, light.z) || 1;
+      light.x /= L; light.y /= L; light.z /= L;
+
+      const tris = data.triangles.map((t) => {
+        const ra = prj.rotate(t.a), rb = prj.rotate(t.b), rc = prj.rotate(t.c);
+        const sa = prj.toScreen(ra), sb = prj.toScreen(rb), sc = prj.toScreen(rc);
+
+        const ux = rb.x - ra.x, uy = rb.y - ra.y, uz = rb.z - ra.z;
+        const vx = rc.x - ra.x, vy = rc.y - ra.y, vz = rc.z - ra.z;
+        let nx = uy * vz - uz * vy;
+        let ny = uz * vx - ux * vz;
+        let nz = ux * vy - uy * vx;
+        const nLen = Math.hypot(nx, ny, nz) || 1;
+        nx /= nLen; ny /= nLen; nz /= nLen;
+        const lit = Math.max(0.2, nx * light.x + ny * light.y + nz * light.z);
+
+        return {
+          a: sa,
+          b: sb,
+          c: sc,
+          depth: (ra.z + rb.z + rc.z) / 3,
+          lit,
+          material: t.material || 'default'
+        };
+      }).sort((a, b) => a.depth - b.depth);
+
+      if (mode === 'wireframe') {
+        ctx.strokeStyle = '#9ddfff';
+        ctx.lineWidth = 1;
+        const limit = Math.min(tris.length, 40000);
+        for (let i = 0; i < limit; i++) {
+          const t = tris[i];
+          ctx.beginPath();
+          ctx.moveTo(t.a.x, t.a.y);
+          ctx.lineTo(t.b.x, t.b.y);
+          ctx.lineTo(t.c.x, t.c.y);
+          ctx.closePath();
+          ctx.stroke();
+        }
+        return;
+      }
+
+      const limit = Math.min(tris.length, 40000);
+      for (let i = 0; i < limit; i++) {
+        const t = tris[i];
+        let fill = '#5f7d93';
+        if (mode === 'rendered') {
+          const s = Math.floor(70 + (150 * t.lit));
+          fill = `rgb(${Math.floor(s * 0.72)}, ${Math.floor(s * 0.86)}, ${s})`;
+        } else if (mode === 'material') {
+          fill = hashColor(t.material);
+        }
+
+        ctx.fillStyle = fill;
+        ctx.beginPath();
+        ctx.moveTo(t.a.x, t.a.y);
+        ctx.lineTo(t.b.x, t.b.y);
+        ctx.lineTo(t.c.x, t.c.y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(20,24,30,0.28)';
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      }
+    }
+
+    function renderResult(result) {
+      setStatus(result.status, result.status);
+      els.fileName.textContent = result.sourceName || 'Unknown file';
+      els.geomCount.textContent = String(result.geometryCount);
+      els.triCount.textContent = String(result.triCount);
+      els.vertCount.textContent = String(result.vertCount);
+      els.colGeomCount.textContent = String(result.colGeomCount);
+      els.collisionStatus.textContent = result.collisionGood ? 'GOOD' : 'WARN';
+      updateLists(els.errors, result.errors);
+      updateLists(els.warnings, result.warnings);
+    }
+
+    function loadXmlText(xmlText, name) {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, 'application/xml');
+      const parserError = xml.getElementsByTagName('parsererror')[0];
+      if (parserError) {
+        renderResult({
+          status: 'FAIL',
+          sourceName: name,
+          geometryCount: 0,
+          triCount: 0,
+          vertCount: 0,
+          colGeomCount: 0,
+          collisionGood: false,
+          errors: ['XML parse error.'],
+          warnings: []
+        });
+        drawGrid();
+        return;
+      }
+
+      const result = analyze(xml, name);
+      const data = collectRenderData(xml);
+      lastRenderData = data;
+      drawPreview(data);
+      renderResult(result);
+    }
+
+    async function loadFile(file, displayName = '') {
+      const txt = await file.text();
+      loadXmlText(txt, displayName || file.name);
+    }
+
+    async function loadModelByKey(key) {
+      const rec = modelMap.get(key);
+      if (!rec) return;
+      currentSelectionKey = key;
+      if (rec.file) {
+        await loadFile(rec.file, key);
+        return;
+      }
+      if (rec.fileHandle && rec.fileHandle.getFile) {
+        const file = await rec.fileHandle.getFile();
+        await loadFile(file, key);
+      }
+    }
+
+    async function addModelsFromDirectoryHandle(srcRec) {
+      if (!srcRec.handle || !srcRec.handle.entries) return 0;
+      let count = 0;
+
+      async function walk(dirHandle, rel = '') {
+        for await (const [name, entry] of dirHandle.entries()) {
+          const nextRel = rel ? `${rel}/${name}` : name;
+          if (entry.kind === 'directory') {
+            await walk(entry, nextRel);
+            continue;
+          }
+          if (!/\.dae$/i.test(name)) continue;
+          const display = `${srcRec.label}/${nextRel}`;
+          modelMap.set(display, {
+            sourceId: srcRec.id,
+            fileHandle: entry
+          });
+          count++;
+        }
+      }
+
+      await walk(srcRec.handle);
+      return count;
+    }
+
+    function addModelsFromFileList(sourceId, sourceLabel, fileList) {
+      let count = 0;
+      for (const f of fileList) {
+        if (!/\.dae$/i.test(f.name)) continue;
+        const rel = (f.webkitRelativePath || f.name).replace(/\\/g, '/');
+        const display = `${sourceLabel}/${rel}`;
+        modelMap.set(display, { sourceId, file: f });
+        count++;
+      }
+      return count;
+    }
+
+    async function refreshAllSources() {
+      modelMap.clear();
+      let total = 0;
+
+      for (const src of sourceMap.values()) {
+        if (src.type === 'handle') {
+          const perm = await sourcePermission(src.handle, 'read');
+          if (perm === 'granted') {
+            total += await addModelsFromDirectoryHandle(src);
+          }
+        }
+      }
+
+      updateSourceSelect();
+      updateModelSelect();
+      if (total === 0) {
+        els.dropZone.textContent = 'No models loaded from saved sources. Use Refresh Sources, Add Custom Folder, or Quick Scan Folder.';
+      } else {
+        els.dropZone.textContent = `Loaded ${total} model(s). Select one from the model dropdown.`;
+      }
+    }
+
+    async function saveAllSources() {
+      for (const src of sourceMap.values()) {
+        if (src.type === 'handle') {
+          await idbSaveSource(src);
+        }
+      }
+    }
+
+    async function loadSavedSources() {
+      if (!FS_SUPPORTED || !window.indexedDB) return;
+      const records = await idbGetAllSources();
+      sourceMap.clear();
+      for (const rec of records) {
+        if (rec && rec.id && rec.handle) {
+          sourceMap.set(rec.id, rec);
+        }
+      }
+      updateSourceSelect();
+    }
+
+    async function addFolderSource({ makeDefault = false } = {}) {
+      if (!FS_SUPPORTED) {
+        alert('Folder handle API is not supported in this browser. Use Quick Scan Folder instead.');
+        return;
+      }
+      try {
+        const handle = await window.showDirectoryPicker({ mode: 'read' });
+        const granted = await ensureSourcePermission({ handle });
+        if (!granted) {
+          alert('Folder permission denied.');
+          return;
+        }
+
+        const id = uid('src');
+        const label = handle.name || 'Custom Source';
+
+        if (makeDefault) {
+          for (const s of sourceMap.values()) s.isDefault = false;
+        }
+
+        const rec = {
+          id,
+          label,
+          type: 'handle',
+          isDefault: !!makeDefault,
+          handle
+        };
+        sourceMap.set(id, rec);
+        await idbSaveSource(rec);
+        await refreshAllSources();
+
+        const first = Array.from(modelMap.keys()).sort((a, b) => a.localeCompare(b))[0];
+        if (first) {
+          els.modelSelect.value = first;
+          await loadModelByKey(first);
+        }
+      } catch {
+        // User cancelled picker.
+      }
+    }
+
+    async function removeSelectedSource() {
+      const id = els.sourceSelect.value;
+      if (!id || id === 'all') return;
+      sourceMap.delete(id);
+      await idbDeleteSource(id);
+
+      for (const [key, rec] of modelMap.entries()) {
+        if (rec.sourceId === id) modelMap.delete(key);
+      }
+
+      if (currentSelectionKey && !modelMap.has(currentSelectionKey)) {
+        currentSelectionKey = '';
+      }
+
+      updateSourceSelect();
+      updateModelSelect();
+    }
+
+    function sampleXml() {
+      return `<?xml version="1.0" encoding="utf-8"?>\n<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">\n  <asset><up_axis>Z_UP</up_axis></asset>\n  <library_geometries>\n    <geometry id="Colmesh-1" name="Colmesh-1">\n      <mesh>\n        <source id="Colmesh-1-positions">\n          <float_array id="Colmesh-1-positions-array" count="9">0 0 0 1 0 0 0 1 0</float_array>\n        </source>\n        <vertices id="Colmesh-1-vertices"><input semantic="POSITION" source="#Colmesh-1-positions"/></vertices>\n        <triangles count="1"><input semantic="VERTEX" source="#Colmesh-1-vertices" offset="0"/><p>0 1 2</p></triangles>\n      </mesh>\n    </geometry>\n  </library_geometries>\n  <library_visual_scenes>\n    <visual_scene id="Scene" name="Scene">\n      <node id="Colmesh-Node" name="Colmesh-Node">\n        <instance_geometry url="#Colmesh-1"/>\n      </node>\n    </visual_scene>\n  </library_visual_scenes>\n  <scene><instance_visual_scene url="#Scene"/></scene>\n</COLLADA>`;
+    }
+
+    els.fileInput.addEventListener('change', async (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      await loadFile(file, file.name);
+    });
+
+    els.scanShapesBtn.addEventListener('click', () => {
+      els.shapesDirInput.click();
+    });
+
+    els.shapesDirInput.addEventListener('change', async (ev) => {
+      const files = ev.target.files;
+      if (!files || !files.length) return;
+
+      const sid = QUICK_SCAN_SOURCE_ID;
+      const label = 'QuickScan';
+
+      for (const [key, rec] of modelMap.entries()) {
+        if ((rec.sourceId || '').startsWith('temp_')) modelMap.delete(key);
+      }
+
+      addModelsFromFileList(sid, label, files);
+      updateModelSelect();
+      const first = Array.from(modelMap.keys()).sort((a, b) => a.localeCompare(b))[0];
+      if (first) {
+        els.modelSelect.value = first;
+        await loadModelByKey(first);
+      }
+    });
+
+    els.setDefaultShapesBtn.addEventListener('click', async () => {
+      await addFolderSource({ makeDefault: true });
+    });
+
+    els.addSourceBtn.addEventListener('click', async () => {
+      await addFolderSource({ makeDefault: false });
+    });
+
+    els.refreshSourcesBtn.addEventListener('click', async () => {
+      for (const src of sourceMap.values()) {
+        if (src.type === 'handle') {
+          await ensureSourcePermission(src);
+        }
+      }
+      await saveAllSources();
+      await refreshAllSources();
+    });
+
+    els.removeSourceBtn.addEventListener('click', async () => {
+      await removeSelectedSource();
+    });
+
+    els.sourceSelect.addEventListener('change', () => {
+      updateModelSelect();
+    });
+
+    els.modelSelect.addEventListener('change', async () => {
+      const key = els.modelSelect.value;
+      if (!key) return;
+      await loadModelByKey(key);
+    });
+
+    els.viewMode.addEventListener('change', () => {
+      if (!lastRenderData) return;
+      drawPreview(lastRenderData);
+    });
+
+    els.requireCollision.addEventListener('change', async () => {
+      if (!currentSelectionKey) return;
+      await loadModelByKey(currentSelectionKey);
+    });
+
+    els.sampleBtn.addEventListener('click', () => {
+      loadXmlText(sampleXml(), 'sample.dae');
+    });
+
+    for (const evt of ['dragenter', 'dragover']) {
+      els.dropZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        els.dropZone.classList.add('active');
+      });
+    }
+
+    for (const evt of ['dragleave', 'drop']) {
+      els.dropZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        els.dropZone.classList.remove('active');
+      });
+    }
+
+    els.dropZone.addEventListener('drop', async (e) => {
+      const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!file || !/\.dae$/i.test(file.name)) return;
+      await loadFile(file, file.name);
+    });
+
+    async function init() {
+      drawGrid();
+      if (!FS_SUPPORTED || !window.indexedDB) {
+        els.dropZone.textContent = 'Browser folder handles are unavailable here. Use Quick Scan Folder or drag/drop .dae files.';
+        return;
+      }
+
+      await loadSavedSources();
+      await refreshAllSources();
+
+      const def = Array.from(sourceMap.values()).find(s => s.isDefault);
+      if (def) {
+        els.sourceSelect.value = def.id;
+        updateModelSelect();
+      }
+
+      const first = Array.from(modelMap.keys()).sort((a, b) => a.localeCompare(b))[0];
+      if (first) {
+        els.modelSelect.value = first;
+        await loadModelByKey(first);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
