@@ -4,13 +4,15 @@ param(
 
     [switch]$NoUi,
 
-    [switch]$RequireCollision
+    [switch]$RequireCollision,
+
+    [string]$SavePreviewImage
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-function Parse-FloatArray {
+function ConvertTo-FloatArray {
     param([string]$Text)
 
     if ([string]::IsNullOrWhiteSpace($Text)) {
@@ -20,7 +22,7 @@ function Parse-FloatArray {
     return ($Text -split '\s+' | Where-Object { $_ -ne '' } | ForEach-Object { [double]$_ })
 }
 
-function Parse-IntArray {
+function ConvertTo-IntArray {
     param([string]$Text)
 
     if ([string]::IsNullOrWhiteSpace($Text)) {
@@ -254,7 +256,7 @@ function New-PreviewBitmap {
             continue
         }
 
-        $positionsRaw = Parse-FloatArray -Text $floatArrayNode.InnerText
+        $positionsRaw = ConvertTo-FloatArray -Text $floatArrayNode.InnerText
         if ($positionsRaw.Count -lt 3) {
             continue
         }
@@ -276,7 +278,7 @@ function New-PreviewBitmap {
             continue
         }
 
-        $indices = Parse-IntArray -Text $pNode.InnerText
+        $indices = ConvertTo-IntArray -Text $pNode.InnerText
         if ($indices.Count -eq 0) {
             continue
         }
@@ -416,6 +418,26 @@ elseif ($warnCount -gt 0) {
 if ($RequireCollision -and -not $collisionStats.HasCollision) {
     $status = 'FAIL'
     $statusColor = 'Red'
+}
+
+if (-not [string]::IsNullOrWhiteSpace($SavePreviewImage)) {
+    Add-Type -AssemblyName System.Drawing
+    $bitmapForSave = New-PreviewBitmap -Xml $xml
+    $savePath = if ([System.IO.Path]::IsPathRooted($SavePreviewImage)) {
+        $SavePreviewImage
+    }
+    else {
+        Join-Path (Get-Location) $SavePreviewImage
+    }
+
+    $saveDir = Split-Path -Parent $savePath
+    if (-not [string]::IsNullOrWhiteSpace($saveDir) -and -not (Test-Path $saveDir)) {
+        New-Item -ItemType Directory -Path $saveDir -Force | Out-Null
+    }
+
+    $bitmapForSave.Save($savePath, [System.Drawing.Imaging.ImageFormat]::Png)
+    $bitmapForSave.Dispose()
+    Write-Host "Preview image saved: $savePath"
 }
 
 if ($NoUi) {

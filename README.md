@@ -24,6 +24,10 @@ This repository includes the V2 update of the Jurassic Park BeamMP map package.
 - The tool also reports collision naming health (`Colmesh`/`collision` style names) so assets can be preflighted for map collision setup.
 - The tool now also reports whether precise collision geometry wiring is present, not just basic collision naming.
 
+Preview screenshot:
+
+![BeamNG Asset Pre-Flight Preview](tools/screenshots/preview-jp-gate-frame.png)
+
 Example:
 
 ```powershell

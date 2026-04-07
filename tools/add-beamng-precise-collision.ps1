@@ -18,7 +18,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-function Clone-GeometryXml {
+function Copy-GeometryXml {
     param(
         [System.Xml.XmlDocument]$Xml,
         [System.Xml.XmlElement]$Geometry,
@@ -191,7 +191,7 @@ function Get-VisibleGeometryNode {
     return $report.VisibleRefs[0].Node
 }
 
-function Ensure-CollisionNode {
+function Set-CollisionNode {
     param(
         [xml]$Xml,
         [System.Xml.XmlNode]$ParentNode,
@@ -337,10 +337,10 @@ function Invoke-PreciseCollisionPrep {
         [void]$existingCollisionGeometry.ParentNode.RemoveChild($existingCollisionGeometry)
     }
 
-    $clonedGeometry = Clone-GeometryXml -Xml $xml -Geometry $sourceGeometry -NewGeometryId $collisionGeometryId -NewGeometryName $CollisionName
+    $clonedGeometry = Copy-GeometryXml -Xml $xml -Geometry $sourceGeometry -NewGeometryId $collisionGeometryId -NewGeometryName $CollisionName
     [void]$sourceGeometry.ParentNode.AppendChild($clonedGeometry)
 
-    $collisionNode = Ensure-CollisionNode -Xml $xml -ParentNode $visibleNode.ParentNode -CollisionName $CollisionName -TypoRefs $before.TypoRefs -AutoFixTypos:$AutoFixTypos
+    $collisionNode = Set-CollisionNode -Xml $xml -ParentNode $visibleNode.ParentNode -CollisionName $CollisionName -TypoRefs $before.TypoRefs -AutoFixTypos:$AutoFixTypos
     Update-InstanceGeometry -CollisionNode $collisionNode -CollisionName $CollisionName -CollisionGeometryId $collisionGeometryId -Xml $xml
 
     $xml.Save($File.FullName)
