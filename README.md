@@ -75,15 +75,53 @@ For safety, folder mode only auto-updates simple assets with exactly one visible
 ## Web UI Preview (HTML)
 
 - Open `tools/asset-preview-web.html` in a browser or a VS Code web tab.
+- For the easiest user flow, run `tools/launch-asset-preview-web.bat`. It starts the local asset server and opens the browser to the web explorer.
+- A profile-based launcher is included at `tools/launch-asset-preview-web.ps1` with preset profiles in `tools/asset-preview-web.profiles.json`.
 - First-time setup for QoL:
 	- Click `Set Default Shapes Folder` and choose your main `art/shapes` directory.
 	- Optionally click `Add Custom Folder` for extra model directories.
 	- Use `Refresh Sources` to rescan saved folders.
 	- Pick a source and model from dropdowns.
+- If you open the page from the local server, the web tab can browse assets without browser folder permissions because the page will use the `/api/models` and `/api/model` endpoints.
 - `Quick Scan Folder` is still available for one-off scans without saving a source.
 - You can still drop a `.dae` file (or use file picker) to get:
 	- wireframe mesh preview
 	- `GOOD` / `WARN` / `FAIL` status
 	- geometry/triangle/vertex stats
 	- collision naming check (`Colmesh` / `collision` patterns)
+- The page now exposes a `ShapeEditor Handoff` panel with BeamNG-ready and workspace paths so users can search the same asset inside BeamNG's Asset Browser / Shape Editor.
+- The page now includes an `Asset Tree` panel grouped by folders, so users can browse by structure instead of only the flat dropdown.
+- The page now includes a `Materials And Textures` panel that reports mesh material slots, material definitions/effects, and texture paths from the DAE.
+- The page now includes a `Batch Export` panel with:
+	- filtered index export (`JSON` / `CSV`)
+	- current preview image export (`PNG`)
 - Enable `Require collision naming` in the page to treat missing collision naming as `FAIL`.
+
+Run the local explorer server directly:
+
+```powershell
+.\tools\asset-preview-web-server.ps1
+```
+
+Or use the launcher batch file:
+
+```bat
+tools\launch-asset-preview-web.bat
+```
+
+Launch with profile presets:
+
+```powershell
+.\tools\launch-asset-preview-web.ps1 -Preset user-friendly-default
+.\tools\launch-asset-preview-web.ps1 -Preset jurassic
+.\tools\launch-asset-preview-web.ps1 -Preset buildings -Port 8770
+```
+
+Batch wrapper with profile + optional overrides:
+
+```bat
+tools\launch-asset-preview-web.bat user-friendly-default
+tools\launch-asset-preview-web.bat jurassic
+tools\launch-asset-preview-web.bat buildings 8770
+tools\launch-asset-preview-web.bat default 8765 "unpacked/jurassic_beam_park_localfix.disabled/levels/jurassic_beam_park/art/shapes" "JP_gate" "jp_gate"
+```

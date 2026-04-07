@@ -1,0 +1,34 @@
+{
+  "default": {
+    "description": "Workspace default shapes path and no filter",
+    "shapesDir": "",
+    "source": "server_source",
+    "search": "",
+    "modelContains": "",
+    "autoLoadFirst": true
+  },
+  "user-friendly-default": {
+    "description": "Simple starter preset for end users",
+    "shapesDir": "unpacked/jurassic_beam_park_localfix.disabled/levels/jurassic_beam_park/art/shapes",
+    "source": "server_source",
+    "search": "",
+    "modelContains": "",
+    "autoLoadFirst": true
+  },
+  "jurassic": {
+    "description": "Jurassic park localfix shapes",
+    "shapesDir": "unpacked/jurassic_beam_park_localfix.disabled/levels/jurassic_beam_park/art/shapes",
+    "source": "server_source",
+    "search": "",
+    "modelContains": "JP_gate",
+    "autoLoadFirst": true
+  },
+  "buildings": {
+    "description": "Focus on buildings folder",
+    "shapesDir": "unpacked/jurassic_beam_park_localfix.disabled/levels/jurassic_beam_park/art/shapes/buildings",
+    "source": "server_source",
+    "search": "building",
+    "modelContains": "",
+    "autoLoadFirst": true
+  }
+}

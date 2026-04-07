@@ -44,21 +44,49 @@ function Write-JsonResponse {
     Write-TextResponse -Response $Response -Content $json -ContentType 'application/json' -StatusCode $StatusCode
 }
 
+function Get-WorkspaceRelativePath {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$BaseDir
+    )
+
+    $fullPath = (Resolve-Path -LiteralPath $Path).Path
+    if ($fullPath.StartsWith($BaseDir, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return ($fullPath.Substring($BaseDir.Length).TrimStart('\') -replace '\\', '/')
+    }
+
+    return ($fullPath -replace '\\', '/')
+}
+
+function Get-GameAssetPath {
+    param([string]$WorkspaceRelativePath)
+
+    $normalized = ($WorkspaceRelativePath -replace '\\', '/').TrimStart('/')
+    if ($normalized -match '^(?:unpacked/[^/]+/|repo/[^/]+/)?((?:levels|vehicles)/.+)$') {
+        return $Matches[1]
+    }
+
+    return ''
+}
+
 function Get-Models {
     param([string]$BaseDir)
 
-    $items = New-Object System.Collections.Generic.List[string]
+    $items = New-Object System.Collections.Generic.List[object]
 
-    Get-ChildItem -LiteralPath $BaseDir -Filter '*.dae' -File -Recurse | ForEach-Object {
-        $rel = $_.FullName.Substring($BaseDir.Length).TrimStart('\\') -replace '\\', '/'
-        $items.Add($rel)
-    }
-    Get-ChildItem -LiteralPath $BaseDir -Filter '*.DAE' -File -Recurse | ForEach-Object {
-        $rel = $_.FullName.Substring($BaseDir.Length).TrimStart('\\') -replace '\\', '/'
-        $items.Add($rel)
+    Get-ChildItem -LiteralPath $BaseDir -File -Recurse | Where-Object { $_.Extension -match '^\.dae$' } | ForEach-Object {
+        $fullPath = $_.FullName
+        $relativePath = $fullPath.Substring($BaseDir.Length).TrimStart('\\') -replace '\\', '/'
+        $workspacePath = Get-WorkspaceRelativePath -Path $fullPath -BaseDir $workspaceRoot
+        $items.Add([PSCustomObject]@{
+            relativePath = $relativePath
+            fullPath = $fullPath
+            workspacePath = $workspacePath
+            beamngPath = Get-GameAssetPath -WorkspaceRelativePath $workspacePath
+        })
     }
 
-    return $items | Sort-Object -Unique
+    return $items | Sort-Object relativePath -Unique
 }
 
 $listener = New-Object System.Net.HttpListener
@@ -88,6 +116,7 @@ try {
                     Write-JsonResponse -Response $response -Payload @{
                         ok = $true
                         shapesDir = $shapesPath
+                        workspaceRoot = $workspaceRoot
                     }
                     continue
                 }

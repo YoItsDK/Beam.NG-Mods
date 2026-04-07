@@ -186,6 +186,84 @@
       margin-top: 6px;
     }
 
+    input[type="search"] {
+      min-width: 220px;
+      max-width: 360px;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .path-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+      padding: 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      word-break: break-all;
+      min-height: 44px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .tiny {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .tree-wrap {
+      max-height: 34vh;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+      padding: 8px;
+    }
+
+    .tree-root,
+    .tree-root ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 14px;
+    }
+
+    .tree-dir {
+      color: #c3d4ef;
+      font-weight: 600;
+      margin: 3px 0;
+    }
+
+    .tree-file {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #b7c7de;
+      text-align: left;
+      width: 100%;
+      padding: 3px 5px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .tree-file:hover {
+      border-color: #425171;
+      background: #283246;
+    }
+
+    .tree-file.active {
+      border-color: #6cb9dd;
+      background: rgba(112, 212, 255, 0.14);
+      color: #e6f6ff;
+    }
+
     @media (max-width: 980px) {
       .wrap { grid-template-columns: 1fr; }
       #viewport { height: 48vh; }
@@ -209,6 +287,7 @@
           <select id="modelSelect" class="control-select">
             <option value="">Select detected model...</option>
           </select>
+          <input id="searchInput" type="search" placeholder="Filter models or paths...">
           <button id="sampleBtn" type="button">Load Sample XML</button>
           <label class="switch">
             <input id="requireCollision" type="checkbox">
@@ -227,6 +306,7 @@
         <div id="dropZone" class="drop">Drop a .dae file here</div>
         <canvas id="viewport" width="1200" height="700"></canvas>
         <div class="hint">Use View Mode to switch between Wireframe, Rendered, and Material previews. Final in-game look still depends on BeamNG shaders/material setup.</div>
+        <div id="connectionHint" class="hint">Waiting for local files or server-backed explorer.</div>
       </div>
     </section>
 
@@ -254,6 +334,67 @@
         <ul id="warnings" class="list"></ul>
       </div>
     </section>
+
+    <section class="card">
+      <div class="head">Asset Tree</div>
+      <div class="body">
+        <div class="tiny">Grouped by folder path from the selected source and filter.</div>
+        <div id="assetTree" class="tree-wrap"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">Materials And Textures</div>
+      <div class="body">
+        <div class="stat-grid">
+          <div class="pill"><div class="k">Material Slots</div><div id="materialSlotCount" class="v">0</div></div>
+          <div class="pill"><div class="k">Materials</div><div id="materialCount" class="v">0</div></div>
+          <div class="pill"><div class="k">Effects</div><div id="effectCount" class="v">0</div></div>
+          <div class="pill"><div class="k">Textures</div><div id="textureCount" class="v">0</div></div>
+        </div>
+        <strong>Material Slots From Mesh</strong>
+        <ul id="materialSlots" class="list"></ul>
+        <strong>Material Definitions</strong>
+        <ul id="materials" class="list"></ul>
+        <strong>Texture Paths</strong>
+        <ul id="textures" class="list"></ul>
+      </div>
+    </section>
+
+    <section class="card full">
+      <div class="head">Batch Export</div>
+      <div class="body">
+        <div class="tiny">Export filtered model index data for automation, and save a preview PNG for the currently loaded model.</div>
+        <div class="button-row">
+          <button id="exportIndexJsonBtn" type="button">Export Filtered Index JSON</button>
+          <button id="exportIndexCsvBtn" type="button">Export Filtered Index CSV</button>
+          <button id="exportPreviewPngBtn" type="button">Export Current Preview PNG</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <div class="head">ShapeEditor Handoff</div>
+      <div class="body">
+        <div class="stat-grid">
+          <div class="pill"><div class="k">Selected Asset</div><div id="selectedModelName" class="v">None</div></div>
+          <div class="pill"><div class="k">Explorer Mode</div><div id="explorerMode" class="v">Waiting</div></div>
+        </div>
+        <div class="tiny">BeamNG does not expose a direct browser-to-ShapeEditor launch hook here, so the web tool provides the exact path you can paste or search inside BeamNG's Asset Browser / Shape Editor flow.</div>
+        <div style="margin-top:10px">
+          <div class="k">BeamNG Asset Path</div>
+          <div id="beamngPath" class="path-box">Unavailable for this source.</div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="k">Workspace Path</div>
+          <div id="workspacePath" class="path-box">Unavailable for this source.</div>
+        </div>
+        <div class="button-row">
+          <button id="copyBeamngPathBtn" type="button">Copy BeamNG Path</button>
+          <button id="copyWorkspacePathBtn" type="button">Copy Workspace Path</button>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -262,6 +403,8 @@
     const DB_STORE = 'sources';
     const FS_SUPPORTED = typeof window.showDirectoryPicker === 'function';
     const QUICK_SCAN_SOURCE_ID = 'temp_quick_scan';
+    const SERVER_SOURCE_ID = 'server_source';
+    const QUERY = new URLSearchParams(window.location.search || '');
 
     const els = {
       fileInput: document.getElementById('fileInput'),
@@ -274,10 +417,12 @@
       removeSourceBtn: document.getElementById('removeSourceBtn'),
       sourceSelect: document.getElementById('sourceSelect'),
       modelSelect: document.getElementById('modelSelect'),
+      searchInput: document.getElementById('searchInput'),
       sampleBtn: document.getElementById('sampleBtn'),
       requireCollision: document.getElementById('requireCollision'),
       dropZone: document.getElementById('dropZone'),
       canvas: document.getElementById('viewport'),
+      connectionHint: document.getElementById('connectionHint'),
       status: document.getElementById('status'),
       fileName: document.getElementById('fileName'),
       geomCount: document.getElementById('geomCount'),
@@ -286,7 +431,24 @@
       colGeomCount: document.getElementById('colGeomCount'),
       collisionStatus: document.getElementById('collisionStatus'),
       errors: document.getElementById('errors'),
-      warnings: document.getElementById('warnings')
+      warnings: document.getElementById('warnings'),
+      assetTree: document.getElementById('assetTree'),
+      materialSlotCount: document.getElementById('materialSlotCount'),
+      materialCount: document.getElementById('materialCount'),
+      effectCount: document.getElementById('effectCount'),
+      textureCount: document.getElementById('textureCount'),
+      materialSlots: document.getElementById('materialSlots'),
+      materials: document.getElementById('materials'),
+      textures: document.getElementById('textures'),
+      selectedModelName: document.getElementById('selectedModelName'),
+      explorerMode: document.getElementById('explorerMode'),
+      beamngPath: document.getElementById('beamngPath'),
+      workspacePath: document.getElementById('workspacePath'),
+      copyBeamngPathBtn: document.getElementById('copyBeamngPathBtn'),
+      copyWorkspacePathBtn: document.getElementById('copyWorkspacePathBtn'),
+      exportIndexJsonBtn: document.getElementById('exportIndexJsonBtn'),
+      exportIndexCsvBtn: document.getElementById('exportIndexCsvBtn'),
+      exportPreviewPngBtn: document.getElementById('exportPreviewPngBtn')
     };
 
     const ctx = els.canvas.getContext('2d');
@@ -294,6 +456,19 @@
     const modelMap = new Map();
     let currentSelectionKey = '';
     let lastRenderData = null;
+    let currentModelMeta = null;
+    const serverState = {
+      available: false,
+      shapesDir: '',
+      workspaceRoot: ''
+    };
+
+    const startupOptions = {
+      source: QUERY.get('source') || '',
+      search: QUERY.get('search') || '',
+      modelContains: QUERY.get('modelContains') || '',
+      autoLoadFirst: /^(1|true|yes)$/i.test(QUERY.get('autoLoadFirst') || '')
+    };
 
     function localNameList(root, name) {
       const out = [];
@@ -362,6 +537,76 @@
     function setStatus(level, label) {
       els.status.className = `status ${level.toLowerCase()}`;
       els.status.textContent = `Status: ${label}`;
+    }
+
+    function setConnectionHint(message) {
+      els.connectionHint.textContent = message;
+    }
+
+    function normalizePath(value) {
+      return (value || '').replace(/\\/g, '/');
+    }
+
+    function inferBeamngPath(value) {
+      const normalized = normalizePath(value).replace(/^\/+/, '');
+      const match = normalized.match(/^(?:unpacked\/[^/]+\/|repo\/[^/]+\/)?((?:levels|vehicles)\/.+)$/i);
+      return match ? match[1] : '';
+    }
+
+    function getExplorerModeLabel(rec) {
+      if (!rec) return 'Waiting';
+      if (rec.serverPath) return 'Server-backed Web Tab';
+      if (rec.fileHandle) return 'Folder Handle';
+      if (rec.file) return 'Quick Scan / Local File';
+      return 'Manual';
+    }
+
+    function setSelectionDetails(rec, key = '') {
+      currentModelMeta = rec || null;
+      els.selectedModelName.textContent = key || 'None';
+      els.explorerMode.textContent = getExplorerModeLabel(rec);
+
+      const workspacePath = normalizePath(rec && rec.workspacePath ? rec.workspacePath : '');
+      const beamngPath = normalizePath(rec && rec.beamngPath ? rec.beamngPath : inferBeamngPath(workspacePath || key));
+
+      els.workspacePath.textContent = workspacePath || 'Unavailable for this source.';
+      els.beamngPath.textContent = beamngPath || 'Unavailable for this source.';
+    }
+
+    async function copyTextValue(value, missingMessage) {
+      if (!value || /^Unavailable/.test(value)) {
+        alert(missingMessage);
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch {
+        const box = document.createElement('textarea');
+        box.value = value;
+        document.body.appendChild(box);
+        box.select();
+        document.execCommand('copy');
+        box.remove();
+      }
+    }
+
+    async function fetchJson(url) {
+      const response = await fetch(url, { cache: 'no-store' });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) {
+        throw new Error(payload.error || `Request failed (${response.status})`);
+      }
+      return payload;
+    }
+
+    async function fetchText(url) {
+      const response = await fetch(url, { cache: 'no-store' });
+      const payload = await response.text();
+      if (!response.ok) {
+        throw new Error(payload || `Request failed (${response.status})`);
+      }
+      return payload;
     }
 
     function openDb() {
@@ -439,6 +684,8 @@
       els.sourceSelect.appendChild(all);
 
       const list = Array.from(sourceMap.values()).sort((a, b) => {
+        if (a.isServer && !b.isServer) return -1;
+        if (!a.isServer && b.isServer) return 1;
         if (a.isDefault && !b.isDefault) return -1;
         if (!a.isDefault && b.isDefault) return 1;
         return a.label.localeCompare(b.label);
@@ -459,14 +706,95 @@
       }
     }
 
-    function updateModelSelect() {
+    function getFilteredModelEntries() {
       const filterSource = els.sourceSelect.value || 'all';
+      const filterText = (els.searchInput.value || '').trim().toLowerCase();
+
+      return Array.from(modelMap.entries())
+        .filter(([, rec]) => filterSource === 'all' || rec.sourceId === filterSource)
+        .filter(([key, rec]) => {
+          if (!filterText) return true;
+          return key.toLowerCase().includes(filterText)
+            || normalizePath(rec.workspacePath || '').toLowerCase().includes(filterText)
+            || normalizePath(rec.beamngPath || '').toLowerCase().includes(filterText)
+            || normalizePath(rec.serverPath || '').toLowerCase().includes(filterText);
+        })
+        .sort((a, b) => a[0].localeCompare(b[0]));
+    }
+
+    function getDisplayPathForModel(key, rec) {
+      return normalizePath(rec.serverPath || rec.workspacePath || key);
+    }
+
+    function renderAssetTree() {
+      const entries = getFilteredModelEntries();
+      els.assetTree.innerHTML = '';
+
+      if (!entries.length) {
+        els.assetTree.textContent = 'No models for current filters.';
+        return;
+      }
+
+      const root = { dirs: new Map(), files: [] };
+      for (const [key, rec] of entries) {
+        const path = getDisplayPathForModel(key, rec);
+        const parts = path.split('/').filter(Boolean);
+        if (!parts.length) continue;
+        const file = parts.pop();
+        let node = root;
+        for (const part of parts) {
+          if (!node.dirs.has(part)) {
+            node.dirs.set(part, { dirs: new Map(), files: [] });
+          }
+          node = node.dirs.get(part);
+        }
+        node.files.push({ file, key });
+      }
+
+      const ul = document.createElement('ul');
+      ul.className = 'tree-root';
+
+      function appendNode(parent, node) {
+        const dirNames = Array.from(node.dirs.keys()).sort((a, b) => a.localeCompare(b));
+        for (const dirName of dirNames) {
+          const li = document.createElement('li');
+          const label = document.createElement('div');
+          label.className = 'tree-dir';
+          label.textContent = dirName;
+          li.appendChild(label);
+          const childUl = document.createElement('ul');
+          appendNode(childUl, node.dirs.get(dirName));
+          li.appendChild(childUl);
+          parent.appendChild(li);
+        }
+
+        const files = node.files.sort((a, b) => a.file.localeCompare(b.file));
+        for (const fileRec of files) {
+          const li = document.createElement('li');
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'tree-file';
+          if (fileRec.key === currentSelectionKey) button.classList.add('active');
+          button.textContent = fileRec.file;
+          button.addEventListener('click', async () => {
+            els.modelSelect.value = fileRec.key;
+            await loadModelByKey(fileRec.key);
+            renderAssetTree();
+          });
+          li.appendChild(button);
+          parent.appendChild(li);
+        }
+      }
+
+      appendNode(ul, root);
+      els.assetTree.appendChild(ul);
+    }
+
+    function updateModelSelect() {
       const current = currentSelectionKey;
       els.modelSelect.innerHTML = '';
 
-      const allModels = Array.from(modelMap.entries())
-        .filter(([, rec]) => filterSource === 'all' || rec.sourceId === filterSource)
-        .sort((a, b) => a[0].localeCompare(b[0]));
+      const allModels = getFilteredModelEntries();
 
       const ph = document.createElement('option');
       ph.value = '';
@@ -484,7 +812,73 @@
 
       if (current && modelMap.has(current) && [...els.modelSelect.options].some(o => o.value === current)) {
         els.modelSelect.value = current;
+      } else if (current && ![...els.modelSelect.options].some(o => o.value === current)) {
+        currentSelectionKey = '';
       }
+
+      renderAssetTree();
+    }
+
+    function inspectMaterials(xml) {
+      const slots = new Set();
+      const materials = [];
+      const materialNames = new Set();
+      const effects = new Set();
+      const textures = [];
+
+      for (const tri of localNameList(xml, 'triangles')) {
+        const mat = attr(tri, 'material');
+        if (mat) slots.add(mat);
+      }
+
+      for (const poly of localNameList(xml, 'polylist')) {
+        const mat = attr(poly, 'material');
+        if (mat) slots.add(mat);
+      }
+
+      for (const mat of localNameList(xml, 'material')) {
+        const id = attr(mat, 'id') || '(unnamed)';
+        const name = attr(mat, 'name') || '';
+        const instEff = localNameList(mat, 'instance_effect')[0];
+        const effectRef = attr(instEff, 'url').replace(/^#/, '');
+        materials.push(`${id}${name ? ` (name: ${name})` : ''}${effectRef ? ` -> ${effectRef}` : ''}`);
+        materialNames.add(id);
+        if (effectRef) effects.add(effectRef);
+      }
+
+      for (const eff of localNameList(xml, 'effect')) {
+        const id = attr(eff, 'id');
+        if (id) effects.add(id);
+      }
+
+      for (const img of localNameList(xml, 'image')) {
+        const id = attr(img, 'id') || '(unnamed-image)';
+        const init = localNameList(img, 'init_from')[0];
+        const path = text(init) || '(missing init_from)';
+        textures.push(`${id}: ${path}`);
+      }
+
+      return {
+        slots: Array.from(slots).sort((a, b) => a.localeCompare(b)),
+        materials: materials.sort((a, b) => a.localeCompare(b)),
+        materialCount: materialNames.size,
+        effects: Array.from(effects).sort((a, b) => a.localeCompare(b)),
+        textures: textures.sort((a, b) => a.localeCompare(b))
+      };
+    }
+
+    function renderMaterialInfo(info) {
+      els.materialSlotCount.textContent = String(info.slots.length);
+      els.materialCount.textContent = String(info.materialCount);
+      els.effectCount.textContent = String(info.effects.length);
+      els.textureCount.textContent = String(info.textures.length);
+      updateLists(els.materialSlots, info.slots);
+      updateLists(els.materials, info.materials);
+      updateLists(els.textures, info.textures);
+    }
+
+    function clearMaterialInfo() {
+      renderMaterialInfo({ slots: [], materials: [], materialCount: 0, effects: [], textures: [] });
     }
 
     function analyze(xml, sourceName) {
@@ -816,6 +1210,8 @@
       const xml = parser.parseFromString(xmlText, 'application/xml');
       const parserError = xml.getElementsByTagName('parsererror')[0];
       if (parserError) {
+        lastRenderData = null;
+        clearMaterialInfo();
         renderResult({
           status: 'FAIL',
           sourceName: name,
@@ -833,9 +1229,86 @@
 
       const result = analyze(xml, name);
       const data = collectRenderData(xml);
+      const materialInfo = inspectMaterials(xml);
       lastRenderData = data;
       drawPreview(data);
       renderResult(result);
+      renderMaterialInfo(materialInfo);
+    }
+
+    function triggerDownload(fileName, content, contentType) {
+      const blob = new Blob([content], { type: contentType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function sanitizeName(value) {
+      return (value || 'asset').replace(/[^a-z0-9._-]+/gi, '_');
+    }
+
+    function getFilteredIndexRows() {
+      return getFilteredModelEntries().map(([key, rec]) => {
+        const name = key.split('/').pop() || key;
+        const workspacePath = normalizePath(rec.workspacePath || '');
+        const beamngPath = normalizePath(rec.beamngPath || inferBeamngPath(workspacePath || key));
+        return {
+          key,
+          sourceId: rec.sourceId || '',
+          fileName: name,
+          modelPath: getDisplayPathForModel(key, rec),
+          workspacePath,
+          beamngPath
+        };
+      });
+    }
+
+    function exportFilteredIndexJson() {
+      const rows = getFilteredIndexRows();
+      const payload = {
+        generatedAtUtc: new Date().toISOString(),
+        sourceFilter: els.sourceSelect.value || 'all',
+        textFilter: (els.searchInput.value || '').trim(),
+        count: rows.length,
+        models: rows
+      };
+      triggerDownload(`beamng_model_index_${Date.now()}.json`, JSON.stringify(payload, null, 2), 'application/json');
+    }
+
+    function exportFilteredIndexCsv() {
+      const rows = getFilteredIndexRows();
+      const header = ['key', 'sourceId', 'fileName', 'modelPath', 'workspacePath', 'beamngPath'];
+      const csvRows = [header.join(',')];
+
+      for (const row of rows) {
+        const vals = header.map((k) => {
+          const raw = String(row[k] || '');
+          return `"${raw.replace(/"/g, '""')}"`;
+        });
+        csvRows.push(vals.join(','));
+      }
+
+      triggerDownload(`beamng_model_index_${Date.now()}.csv`, csvRows.join('\n'), 'text/csv');
+    }
+
+    function exportCurrentPreviewPng() {
+      if (!currentSelectionKey || !lastRenderData) {
+        alert('Load a model first, then export preview PNG.');
+        return;
+      }
+
+      const name = sanitizeName(currentSelectionKey.split('/').pop() || 'preview');
+      const link = document.createElement('a');
+      link.href = els.canvas.toDataURL('image/png');
+      link.download = `${name}_preview.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     }
 
     async function loadFile(file, displayName = '') {
@@ -847,6 +1320,7 @@
       const rec = modelMap.get(key);
       if (!rec) return;
       currentSelectionKey = key;
+      setSelectionDetails(rec, key);
       if (rec.file) {
         await loadFile(rec.file, key);
         return;
@@ -854,6 +1328,11 @@
       if (rec.fileHandle && rec.fileHandle.getFile) {
         const file = await rec.fileHandle.getFile();
         await loadFile(file, key);
+        return;
+      }
+      if (rec.serverPath) {
+        const xmlText = await fetchText(`/api/model?path=${encodeURIComponent(rec.serverPath)}`);
+        loadXmlText(xmlText, key);
       }
     }
 
@@ -888,15 +1367,80 @@
         if (!/\.dae$/i.test(f.name)) continue;
         const rel = (f.webkitRelativePath || f.name).replace(/\\/g, '/');
         const display = `${sourceLabel}/${rel}`;
-        modelMap.set(display, { sourceId, file: f });
+        modelMap.set(display, {
+          sourceId,
+          file: f,
+          workspacePath: rel,
+          beamngPath: inferBeamngPath(rel)
+        });
         count++;
       }
       return count;
     }
 
+    function removeModelsForSource(sourceId) {
+      for (const [key, rec] of Array.from(modelMap.entries())) {
+        if (rec.sourceId === sourceId) modelMap.delete(key);
+      }
+    }
+
+    async function loadServerModels() {
+      removeModelsForSource(SERVER_SOURCE_ID);
+
+      if (!/^https?:$/i.test(window.location.protocol)) {
+        serverState.available = false;
+        sourceMap.delete(SERVER_SOURCE_ID);
+        return 0;
+      }
+
+      try {
+        const health = await fetchJson('/api/health');
+        const payload = await fetchJson('/api/models');
+        serverState.available = true;
+        serverState.shapesDir = health.shapesDir || '';
+        serverState.workspaceRoot = health.workspaceRoot || '';
+
+        sourceMap.set(SERVER_SOURCE_ID, {
+          id: SERVER_SOURCE_ID,
+          label: 'Local Server',
+          type: 'server',
+          isDefault: false,
+          isServer: true,
+          shapesDir: serverState.shapesDir
+        });
+
+        let count = 0;
+        for (const item of payload.models || []) {
+          const relativePath = typeof item === 'string' ? item : (item.relativePath || '');
+          if (!relativePath) continue;
+          const workspacePath = typeof item === 'string' ? '' : normalizePath(item.workspacePath || '');
+          const beamngPath = typeof item === 'string' ? inferBeamngPath(relativePath) : normalizePath(item.beamngPath || inferBeamngPath(workspacePath || relativePath));
+          const display = `Local Server/${relativePath}`;
+          modelMap.set(display, {
+            sourceId: SERVER_SOURCE_ID,
+            serverPath: relativePath,
+            workspacePath,
+            beamngPath
+          });
+          count++;
+        }
+
+        setConnectionHint(`Connected to local asset server. Shapes root: ${serverState.shapesDir}`);
+        return count;
+      } catch (error) {
+        serverState.available = false;
+        sourceMap.delete(SERVER_SOURCE_ID);
+        setConnectionHint(`Server-backed explorer unavailable. ${error.message}`);
+        return 0;
+      }
+    }
+
     async function refreshAllSources() {
-      modelMap.clear();
-      let total = 0;
+      for (const [key, rec] of Array.from(modelMap.entries())) {
+        if (rec.sourceId !== SERVER_SOURCE_ID) modelMap.delete(key);
+      }
+
+      let total = await loadServerModels();
 
       for (const src of sourceMap.values()) {
         if (src.type === 'handle') {
@@ -927,7 +1471,9 @@
     async function loadSavedSources() {
       if (!FS_SUPPORTED || !window.indexedDB) return;
       const records = await idbGetAllSources();
-      sourceMap.clear();
+      for (const key of Array.from(sourceMap.keys())) {
+        if (key !== SERVER_SOURCE_ID) sourceMap.delete(key);
+      }
       for (const rec of records) {
         if (rec && rec.id && rec.handle) {
           sourceMap.set(rec.id, rec);
@@ -1055,6 +1601,10 @@
       updateModelSelect();
     });
 
+    els.searchInput.addEventListener('input', () => {
+      updateModelSelect();
+    });
+
     els.modelSelect.addEventListener('change', async () => {
       const key = els.modelSelect.value;
       if (!key) return;
@@ -1072,7 +1622,28 @@
     });
 
     els.sampleBtn.addEventListener('click', () => {
+      setSelectionDetails({ sourceId: 'sample' }, 'sample.dae');
       loadXmlText(sampleXml(), 'sample.dae');
+    });
+
+    els.copyBeamngPathBtn.addEventListener('click', async () => {
+      await copyTextValue(els.beamngPath.textContent.trim(), 'No BeamNG asset path is available for the current selection.');
+    });
+
+    els.copyWorkspacePathBtn.addEventListener('click', async () => {
+      await copyTextValue(els.workspacePath.textContent.trim(), 'No workspace path is available for the current selection.');
+    });
+
+    els.exportIndexJsonBtn.addEventListener('click', () => {
+      exportFilteredIndexJson();
+    });
+
+    els.exportIndexCsvBtn.addEventListener('click', () => {
+      exportFilteredIndexCsv();
+    });
+
+    els.exportPreviewPngBtn.addEventListener('click', () => {
+      exportCurrentPreviewPng();
     });
 
     for (const evt of ['dragenter', 'dragover']) {
@@ -1099,13 +1670,28 @@
 
     async function init() {
       drawGrid();
-      if (!FS_SUPPORTED || !window.indexedDB) {
-        els.dropZone.textContent = 'Browser folder handles are unavailable here. Use Quick Scan Folder or drag/drop .dae files.';
-        return;
+      setSelectionDetails(null, '');
+      clearMaterialInfo();
+      if (FS_SUPPORTED && window.indexedDB) {
+        await loadSavedSources();
+      }
+      await refreshAllSources();
+
+      if (startupOptions.search) {
+        els.searchInput.value = startupOptions.search;
+        updateModelSelect();
       }
 
-      await loadSavedSources();
-      await refreshAllSources();
+      if (startupOptions.source && [...els.sourceSelect.options].some((o) => o.value === startupOptions.source)) {
+        els.sourceSelect.value = startupOptions.source;
+        updateModelSelect();
+      }
+
+      if (!FS_SUPPORTED || !window.indexedDB) {
+        if (!serverState.available) {
+          els.dropZone.textContent = 'Browser folder handles are unavailable here. Start the local web server or use Quick Scan Folder / drag-drop.';
+        }
+      }
 
       const def = Array.from(sourceMap.values()).find(s => s.isDefault);
       if (def) {
@@ -1114,7 +1700,18 @@
       }
 
       const first = Array.from(modelMap.keys()).sort((a, b) => a.localeCompare(b))[0];
-      if (first) {
+      let initialKey = first;
+      if (startupOptions.modelContains) {
+        const needle = startupOptions.modelContains.toLowerCase();
+        const filtered = getFilteredModelEntries();
+        const match = filtered.find(([key]) => key.toLowerCase().includes(needle));
+        if (match) initialKey = match[0];
+      }
+
+      if (initialKey && (startupOptions.autoLoadFirst || startupOptions.modelContains || startupOptions.search || startupOptions.source)) {
+        els.modelSelect.value = initialKey;
+        await loadModelByKey(initialKey);
+      } else if (first) {
         els.modelSelect.value = first;
         await loadModelByKey(first);
       }
