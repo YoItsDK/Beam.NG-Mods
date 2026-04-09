@@ -1,0 +1,77 @@
+{
+    "segments" : {
+
+        "bridge1" : {
+            "nodes" : ["jri_wp_1", "jri_wp_2"],
+            "drivability" : 1
+        },
+        "bridge2" : {
+            "nodes" : ["jri_wp_3", "jri_wp_4"],
+            "drivability" : 1
+        },
+        "bridge3" : {
+            "nodes" : ["jri_wp_5", "jri_wp_6"],
+            "drivability" : 1
+        },
+        "bridge4" : {
+            "nodes" : ["jri_wp_7", "jri_wp_8"],
+            "drivability" : 1
+        },
+        "bridge5" : {
+            "nodes" : ["jri_wp_13", "jri_wp_14"],
+            "drivability" : 1
+        },
+        "joiner1" : {
+            "nodes" : ["jri_wp_9", "jri_wp_10", "jri_wp_11", "jri_wp_12"],
+            "drivability" : 0.4
+        },
+        "joiner2" : {
+            "nodes" : ["jri_wp_17", "jri_wp_16", "jri_wp_15", "jri_wp_18"],
+            "drivability" : 1
+        },
+        "manual_road_1" : {
+            "nodes" : ["jri_wp_19", "jri_wp_20", "jri_wp_21", "jri_wp_22", "jri_wp_23", "jri_wp_24", "jri_wp_25", "jri_wp_26", "jri_wp_23"],
+            "drivability" : 1
+        },
+        "manual_road_2" : {
+            "nodes" : ["jri_wp_26", "jri_wp_27", "jri_wp_30", "jri_wp_33", "jri_wp_28", "jri_wp_29", "jri_wp_31", "jri_wp_32"],
+            "drivability" : 1
+        },
+        "manual_road_3" : {
+            "nodes" : ["jri_wp_25", "jri_wp_27"],
+            "drivability" : 1
+        },
+        "manual_road_4" : {
+            "nodes" : ["jri_wp_25", "jri_wp_34", "jri_wp_35"],
+            "drivability" : 1
+        },
+        "manual_road_5" : {
+            "nodes" : ["jri_wp_36", "jri_wp_39", "jri_wp_38", "jri_wp_37"],
+            "drivability" : 1
+        },
+        "manual_road_6" : {
+            "nodes" : ["jri_wp_39", "jri_wp_40", "jri_wp_38"],
+            "drivability" : 1
+        },
+        "manual_road_7" : {
+            "nodes" : ["jri_wp_29", "jri_wp_41", "jri_wp_42", "jri_wp_43", "jri_wp_44"],
+            "drivability" : 1
+        },
+        "manual_road_8" : {
+            "nodes" : ["jri_wp_31", "jri_wp_41"],
+            "drivability" : 1
+        },
+        "manual_road_9" : {
+            "nodes" : ["wp_hangar_1", "wp_hangar_2", "wp_hangar_3"],
+            "drivability" : 1
+        },
+        "manual_road_10" : {
+            "nodes" : ["wp_hangar_4", "wp_hangar_3"],
+            "drivability" : 1
+        },
+        "airfield" : {
+          "nodes" : ["wp_airfield1", "wp_airfield2"],
+          "drivability" : 1
+        }
+    }
+}

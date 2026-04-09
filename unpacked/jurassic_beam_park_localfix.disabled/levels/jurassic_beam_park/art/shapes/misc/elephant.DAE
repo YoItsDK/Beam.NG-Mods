@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2018-03-05T11:29:25Z</created><keywords></keywords><modified>2018-03-05T11:29:25Z</modified><revision></revision><subject></subject><title></title><unit meter="1.000000" name="centimeter"></unit><up_axis>Z_UP</up_axis></asset>
+  <library_images>
+    <image id="Map #1-image" name="Map #1"><init_from>file://D:\terrain_source\gameplay_artwork\3D\Levels\bus_safari_tour\maps\animals_diff.dds</init_from></image>
+  </library_images>
+  <library_materials>
+    <material id="animals" name="animals">
+      <instance_effect url="#animals-fx"/>
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="animals-fx" name="animals">
+      <profile_COMMON>
+        <technique sid="standard">
+          <phong>
+            <emission>
+              <color sid="emission">0.000000  0.000000 0.000000 1.000000</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0.588000  0.588000 0.588000 1.000000</color>
+            </ambient>
+            <diffuse>
+              <texture texture="Map #1-image" texcoord="CHANNEL0">
+                <extra>
+                  <technique profile="MAYA">
+                    <wrapU sid="wrapU0">TRUE</wrapU>
+                    <wrapV sid="wrapV0">TRUE</wrapV>
+                    <blend_mode>ADD</blend_mode>
+                  </technique>
+                </extra>
+              </texture>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.000000  0.000000 0.000000 1.000000</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">2.000000</float>
+            </shininess>
+            <reflective>
+              <color sid="reflective">0.000000  0.000000 0.000000 1.000000</color>
+            </reflective>
+            <reflectivity>
+              <float sid="reflectivity">1.000000</float>
+            </reflectivity>
+            <transparent opaque="RGB_ZERO">
+              <color sid="transparent">1.000000  1.000000 1.000000 1.000000</color>
+            </transparent>
+            <transparency>
+              <float sid="transparency">0.000000</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="elephant_a70-lib" name="elephant_a70Mesh">
+      <mesh>
+        <source id="elephant_a70-POSITION">
+          <float_array id="elephant_a70-POSITION-array" count="72">
+-1.320247 0.021584 0.000000
+0.586422 0.021584 0.000000
+0.586422 0.021584 0.602356
+0.764726 0.021584 1.320161
+1.614864 0.021584 2.248137
+1.317018 0.021584 3.096125
+0.547456 0.021584 3.301650
+-0.429299 0.021584 3.316593
+-1.566402 0.021584 1.917430
+-1.614864 0.021584 1.003013
+1.194940 0.021584 1.691386
+-1.260848 0.021584 3.106792
+-1.320247 -0.021584 0.000000
+0.586422 -0.021584 0.000000
+0.586422 -0.021584 0.602356
+0.764726 -0.021584 1.320161
+1.614864 -0.021584 2.248137
+1.317018 -0.021584 3.096125
+0.547456 -0.021584 3.301650
+-0.429299 -0.021584 3.316593
+-1.566402 -0.021584 1.917430
+-1.614864 -0.021584 1.003014
+1.194940 -0.021584 1.691386
+-1.260848 -0.021584 3.106792
+</float_array>
+          <technique_common>
+            <accessor source="#elephant_a70-POSITION-array" count="24" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="elephant_a70-Normal0">
+          <float_array id="elephant_a70-Normal0-array" count="264">
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 0.000000
+0.000000 1.000000 0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+0.000000 1.000000 -0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 -0.000000
+-0.000000 -1.000000 -0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.000000 -1.000000 0.000000
+-0.993236 -0.000006 -0.116112
+-0.959466 -0.000007 -0.281826
+-0.959466 -0.000007 -0.281826
+-0.993236 -0.000006 -0.116111
+1.000000 0.000001 -0.000000
+0.992599 0.000001 -0.121436
+0.992599 0.000001 -0.121437
+1.000000 0.000001 -0.000000
+-0.000000 -0.000006 -1.000000
+-0.000000 -0.000006 -1.000000
+-0.000000 -0.000006 -1.000000
+-0.000000 -0.000006 -1.000000
+0.258025 0.000000 0.966138
+0.137698 0.000000 0.990474
+0.137698 0.000000 0.990474
+0.258025 0.000000 0.966138
+0.943493 0.000000 0.331392
+0.943493 0.000000 0.331392
+0.943493 0.000000 0.331392
+0.943493 0.000000 0.331392
+0.137698 0.000000 0.990474
+-0.115664 -0.000002 0.993288
+-0.115663 -0.000002 0.993288
+0.137698 0.000000 0.990474
+0.729956 -0.000001 -0.683494
+0.798372 -0.000001 -0.602164
+0.798372 -0.000001 -0.602164
+0.729956 -0.000001 -0.683494
+-0.115664 -0.000002 0.993288
+-0.244635 -0.000004 0.969615
+-0.244635 -0.000004 0.969615
+-0.115663 -0.000002 0.993288
+0.992599 0.000001 -0.121436
+0.851912 -0.000001 -0.523685
+0.851912 -0.000001 -0.523686
+0.992599 0.000001 -0.121437
+-0.988439 -0.000005 0.151620
+-0.993236 -0.000006 -0.116112
+-0.993236 -0.000006 -0.116111
+-0.988439 -0.000005 0.151621
+-0.968548 -0.000006 0.248826
+-0.988439 -0.000005 0.151620
+-0.988439 -0.000005 0.151621
+-0.968548 -0.000006 0.248826
+0.851912 -0.000001 -0.523685
+0.729956 -0.000001 -0.683494
+0.729956 -0.000001 -0.683494
+0.851912 -0.000001 -0.523686
+</float_array>
+          <technique_common>
+            <accessor source="#elephant_a70-Normal0-array" count="88" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="elephant_a70-UV0">
+          <float_array id="elephant_a70-UV0-array" count="100">
+0.840215 0.623927
+0.548798 0.674925
+0.588654 0.542570
+0.840756 0.544282
+0.974721 0.842460
+0.934577 0.954315
+0.832640 0.980799
+0.703478 0.981897
+0.919697 0.768468
+0.593718 0.953409
+0.863147 0.718996
+0.554385 0.795875
+0.547688 0.056996
+0.604092 0.241770
+0.196527 0.172035
+0.195350 0.060724
+0.209003 0.670772
+0.066392 0.634297
+0.009694 0.478177
+0.389529 0.671624
+0.086205 0.374471
+0.542784 0.631227
+0.596924 0.410843
+0.164981 0.305029
+1.096833 0.002521
+1.235058 0.002521
+1.235058 0.008229
+1.096833 0.008229
+1.487169 0.002521
+0.081523 0.002521
+0.081523 0.008229
+0.001876 0.008229
+0.465505 0.002521
+0.570826 0.002521
+0.570826 0.008229
+0.465505 0.008229
+0.346664 0.002521
+0.346664 0.008229
+0.699993 0.002521
+0.699993 0.008229
+0.254455 0.002521
+0.254455 0.008229
+0.813388 0.002521
+0.813388 0.008229
+0.179320 0.002521
+0.179320 0.008229
+0.975757 0.002521
+0.975757 0.008229
+0.001876 0.002521
+1.487169 0.008229
+</float_array>
+          <technique_common>
+            <accessor source="#elephant_a70-UV0-array" count="50" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="elephant_a70-VERTEX">
+          <input semantic="POSITION" source="#elephant_a70-POSITION"/>
+        </vertices>
+        <polylist count="22" material="animals"><input semantic="VERTEX" offset="0" source="#elephant_a70-VERTEX"/><input semantic="NORMAL" offset="1" source="#elephant_a70-Normal0"/><input semantic="TEXCOORD" offset="2" set="0" source="#elephant_a70-UV0"/><vcount>4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 </vcount><p> 0 0 12 9 1 13 2 2 14 1 3 15 6 4 16 5 5 17 4 6 18 7 7 19 7 8 19 4 9 18 10 10 20 11 11 21 8 12 22 3 13 23 2 14 14 9 15 13 3 16 23 8 17 22 11 18 21 10 19 20 14 20 0 21 21 1 12 22 2 13 23 3 16 24 4 17 25 5 18 26 6 19 27 7 22 28 8 16 29 4 19 30 7 23 31 9 14 32 0 15 33 10 20 34 11 21 35 1 23 36 9 20 37 11 15 38 10 22 39 8 9 40 24 0 41 25 12 42 26 21 43 27 1 44 48 2 45 29 14 46 30 13 47 31 0 48 25 1 49 28 13 50 49 12 51 26 5 52 32 6 53 33 18 54 34 17 55 35 4 56 36 5 57 32 17 58 35 16 59 37 6 60 33 7 61 38 19 62 39 18 63 34 10 64 40 4 65 36 16 66 37 22 67 41 7 68 38 11 69 42 23 70 43 19 71 39 2 72 29 3 73 44 15 74 45 14 75 30 8 76 46 9 77 24 21 78 27 20 79 47 11 80 42 8 81 46 20 82 47 23 83 43 3 84 44 10 85 40 22 86 41 15 87 45</p></polylist>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="elephant" name="elephant">
+      <node name="base00" id="base00" sid="base00"><matrix sid="matrix">1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix><extra><technique profile="FCOLLADA"><visibility>1.000000</visibility></technique></extra><node name="collision-1" id="collision-1" sid="collision-1"><matrix sid="matrix">1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix><extra><technique profile="FCOLLADA"><visibility>1.000000</visibility></technique></extra></node><node name="start01" id="start01" sid="start01"><matrix sid="matrix">1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix><extra><technique profile="FCOLLADA"><visibility>1.000000</visibility></technique></extra><node name="elephant_a70" id="elephant_a70" sid="elephant_a70"><matrix sid="matrix">1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix><instance_geometry url="#elephant_a70-lib"><bind_material><technique_common><instance_material symbol="animals" target="#animals"/></technique_common></bind_material></instance_geometry><extra><technique profile="FCOLLADA"><visibility>1.000000</visibility></technique></extra></node></node><node name="nulldetail25" id="nulldetail25" sid="nulldetail25"><matrix sid="matrix">1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix><extra><technique profile="FCOLLADA"><visibility>1.000000</visibility></technique></extra></node></node>
+      <extra><technique profile="MAX3D"><frame_rate>30.000000</frame_rate></technique><technique profile="FCOLLADA"><start_time>0.000000</start_time><end_time>3.333333</end_time></technique></extra>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#elephant"></instance_visual_scene>
+  </scene>
+</COLLADA>

@@ -1,0 +1,18 @@
+{
+  "binaryFormat" : "version(char), size(unsigned int), heightMap(heightMapSize * heightMapItemSize), layerMap (layerMapSize * layerMapItemSize), materialNames",
+  "datafile" : "levels/jurassic_beam_park/theTerrain.ter",
+  "heightMapItemSize" : 2,
+  "heightMapSize" : 4194304,
+  "heightmapImage" : "levels/jurassic_beam_park/theTerrain.terrainheightmap.png",
+  "layerMapItemSize" : 1,
+  "layerMapSize" : 4194304,
+  "materials" : [
+    "warning_material",
+    "grass",
+    "BeachSand",
+    "Rock2",
+    "RockyDirt",
+    "groundmodel_asphalt"
+  ],
+  "size" : 2048
+}
