@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BeamNG DAE Web Preflight</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
     :root {
       --bg: #11151c;
       --panel: #1a1f28;
@@ -24,7 +26,7 @@
 
     body {
       margin: 0;
-      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-family: "Manrope", "Segoe UI", Tahoma, sans-serif;
       background: radial-gradient(circle at 20% 0%, #19202b 0%, var(--bg) 45%);
       color: var(--text);
     }
@@ -57,13 +59,90 @@
 
     .full { grid-column: 1 / -1; }
 
-    #viewport {
+    .viewport-stack {
+      position: relative;
       width: 100%;
       height: 66vh;
-      display: block;
-      background: #151a22;
       border-radius: 8px;
       border: 1px solid var(--border);
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(43, 51, 68, 0.9) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(43, 51, 68, 0.9) 1px, transparent 1px),
+        radial-gradient(circle at 30% 18%, rgba(128, 188, 255, 0.08), transparent 32%),
+        linear-gradient(180deg, #151a22 0%, #10151d 100%);
+      background-size: 40px 40px, 40px 40px, auto, auto;
+      background-position: 0 0, 0 0, center, center;
+    }
+
+    #viewportHost,
+    #viewport {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #viewportHost {
+      z-index: 2;
+    }
+
+    #viewportHost canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    #viewport {
+      z-index: 1;
+      background: transparent;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .viewport-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(34, 41, 56, 0.8);
+    }
+
+    .slider-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .slider-wrap input[type="range"] {
+      width: 130px;
+    }
+
+    .viewport-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #425171;
+      background: rgba(25, 32, 43, 0.9);
+      color: #d7e7f8;
+      font-size: 0.86rem;
+    }
+
+    .layer-preset.active {
+      border-color: #6cb9dd;
+      background: rgba(112, 212, 255, 0.14);
+      color: #e6f6ff;
     }
 
     .controls {
@@ -72,6 +151,10 @@
       gap: 10px;
       align-items: center;
       margin-bottom: 8px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(34, 41, 56, 0.55);
     }
 
     input[type="file"] {
@@ -111,6 +194,158 @@
       gap: 10px;
       margin-top: 8px;
       align-items: center;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(34, 41, 56, 0.42);
+    }
+
+    .section-label {
+      margin-top: 10px;
+      margin-bottom: 6px;
+      color: #d5e5fa;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .quick-guide {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(35, 45, 62, 0.65), rgba(22, 29, 39, 0.65));
+    }
+
+    .quick-guide h3 {
+      margin: 0 0 8px 0;
+      font-size: 0.96rem;
+      color: #eaf4ff;
+    }
+
+    .quick-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .quick-step {
+      border: 1px solid #425171;
+      border-radius: 8px;
+      padding: 8px;
+      background: rgba(31, 39, 54, 0.85);
+    }
+
+    .quick-step .n {
+      color: #8dd7ff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .quick-step .t {
+      color: #dce9f9;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 3px;
+    }
+
+    .panel-toggle > summary {
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .panel-toggle > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .panel-toggle > summary.head::after {
+      content: 'Expand';
+      float: right;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .panel-toggle[open] > summary.head::after {
+      content: 'Collapse';
+    }
+
+    .debug-group {
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(28, 35, 47, 0.55);
+      overflow: hidden;
+    }
+
+    .debug-group > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      font-weight: 700;
+      color: #deecfb;
+      user-select: none;
+    }
+
+    .debug-group > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .debug-group > summary::before {
+      content: '>';
+      display: inline-block;
+      margin-right: 8px;
+      color: #8dd7ff;
+      transition: transform 0.15s ease;
+    }
+
+    .debug-group[open] > summary::before {
+      transform: rotate(90deg);
+    }
+
+    .debug-body {
+      padding: 0 12px 12px 12px;
+      border-top: 1px solid rgba(66, 81, 113, 0.5);
+    }
+
+    .debug-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .debug-item {
+      border: 1px solid #425171;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: rgba(21, 27, 38, 0.7);
+    }
+
+    .debug-item .k {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #91a7c7;
+      letter-spacing: 0.45px;
+      text-transform: uppercase;
+    }
+
+    .debug-item .v {
+      margin-top: 4px;
+      color: #eef6ff;
+      font-size: 0.92rem;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .debug-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
     }
 
     label.switch {
@@ -219,6 +454,10 @@
       color: var(--muted);
     }
 
+    .ok-text { color: var(--ok); }
+    .warn-text { color: var(--warn); }
+    .fail-text { color: var(--fail); }
+
     .tree-wrap {
       max-height: 34vh;
       overflow: auto;
@@ -264,21 +503,56 @@
       color: #e6f6ff;
     }
 
+    .node-list {
+      max-height: 28vh;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+      padding: 8px;
+    }
+
+    .node-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 4px 0;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .node-item .meta {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
     @media (max-width: 980px) {
       .wrap { grid-template-columns: 1fr; }
-      #viewport { height: 48vh; }
+      .viewport-stack { height: 48vh; }
+      .quick-guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .debug-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="card full">
-      <div class="head">BeamNG DAE Web Preflight</div>
+      <div class="head">BeamNG DAE Explorer</div>
       <div class="body">
+        <div class="quick-guide">
+          <h3>Quick Start</h3>
+          <div class="quick-guide-grid">
+            <div class="quick-step"><div class="n">Step 1</div><div class="t">Pick source folder or server</div></div>
+            <div class="quick-step"><div class="n">Step 2</div><div class="t">Select a DAE model</div></div>
+            <div class="quick-step"><div class="n">Step 3</div><div class="t">Switch Wireframe, Rendered, Material</div></div>
+            <div class="quick-step"><div class="n">Step 4</div><div class="t">Filter visible and collision layers</div></div>
+          </div>
+        </div>
+        <div class="section-label">Model Loading</div>
         <div class="controls">
           <input id="fileInput" type="file" accept=".dae,.DAE,text/xml,application/xml">
           <input id="shapesDirInput" type="file" webkitdirectory directory multiple style="display:none">
-          <button id="scanShapesBtn" type="button">Quick Scan Folder</button>
+          <button id="scanShapesBtn" type="button">Scan Folder</button>
           <select id="viewMode" class="control-select" style="min-width:220px;max-width:260px;">
             <option value="wireframe">Wireframe</option>
             <option value="rendered">Rendered</option>
@@ -288,12 +562,14 @@
             <option value="">Select detected model...</option>
           </select>
           <input id="searchInput" type="search" placeholder="Filter models or paths...">
-          <button id="sampleBtn" type="button">Load Sample XML</button>
+          <button id="saveSourceBtn" type="button" disabled>Save .DAE</button>
+          <button id="sampleBtn" type="button">Load Sample</button>
           <label class="switch">
             <input id="requireCollision" type="checkbox">
             Require collision naming (Colmesh/collision)
           </label>
         </div>
+        <div class="section-label">Source Management</div>
         <div class="sub-controls">
           <select id="sourceSelect" class="control-select">
             <option value="all">All Sources</option>
@@ -304,14 +580,57 @@
           <button id="removeSourceBtn" type="button">Remove Selected Source</button>
         </div>
         <div id="dropZone" class="drop">Drop a .dae file here</div>
-        <canvas id="viewport" width="1200" height="700"></canvas>
+        <div class="viewport-stack">
+          <div id="viewportHost"></div>
+          <canvas id="viewport" width="1200" height="700"></canvas>
+        </div>
+        <div class="viewport-toolbar">
+          <span id="viewportModeBadge" class="viewport-badge">Fallback Preview</span>
+          <label class="switch">
+            <input id="beamLighting" type="checkbox" checked>
+            Beam-style lighting
+          </label>
+          <label class="switch">
+            <input id="autoRotate" type="checkbox">
+            Auto rotate
+          </label>
+          <label class="slider-wrap">
+            Exposure
+            <input id="exposureRange" type="range" min="0.6" max="1.8" step="0.05" value="1.05">
+            <span id="exposureValue">1.05</span>
+          </label>
+        </div>
         <div class="hint">Use View Mode to switch between Wireframe, Rendered, and Material previews. Final in-game look still depends on BeamNG shaders/material setup.</div>
+        <div class="hint">3D controls: drag to orbit, right-drag to pan, mouse wheel to zoom. Auto rotate and exposure are live.</div>
         <div id="connectionHint" class="hint">Waiting for local files or server-backed explorer.</div>
       </div>
     </section>
 
     <section class="card">
-      <div class="head">Status</div>
+      <div class="head">Scene Layers And Nodes</div>
+      <div class="body">
+        <div class="button-row" style="margin-top:0">
+          <label class="switch">
+            <input id="showVisibleLayer" type="checkbox" checked>
+            Show visible layer
+          </label>
+          <label class="switch">
+            <input id="showCollisionLayer" type="checkbox" checked>
+            Show collision layer
+          </label>
+          <button id="resetViewBtn" type="button">Reset View</button>
+        </div>
+        <div class="button-row" style="margin-top:8px">
+          <button id="layerVisibleOnlyBtn" class="layer-preset" type="button">Visible Only</button>
+          <button id="layerCollisionOnlyBtn" class="layer-preset" type="button">Collision Only</button>
+          <button id="layerBothBtn" class="layer-preset" type="button">Show Both</button>
+        </div>
+        <div id="nodeFilterList" class="node-list" style="margin-top:8px">Load a model to view nodes.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">Model Status</div>
       <div class="body">
         <div id="status" class="status warn">Status: WAITING</div>
         <div id="fileName" class="hint">No file selected.</div>
@@ -319,6 +638,7 @@
           <div class="pill"><div class="k">Geometry</div><div id="geomCount" class="v">0</div></div>
           <div class="pill"><div class="k">Triangles</div><div id="triCount" class="v">0</div></div>
           <div class="pill"><div class="k">Vertices</div><div id="vertCount" class="v">0</div></div>
+          <div class="pill"><div class="k">Visible Mesh Nodes</div><div id="visibleMeshCount" class="v">0</div></div>
           <div class="pill"><div class="k">Collision Geometries</div><div id="colGeomCount" class="v">0</div></div>
         </div>
         <div class="pill"><div class="k">Collision</div><div id="collisionStatus" class="v">WARN</div></div>
@@ -326,13 +646,56 @@
     </section>
 
     <section class="card">
-      <div class="head">Findings</div>
-      <div class="body">
-        <strong>Errors</strong>
-        <ul id="errors" class="list"></ul>
-        <strong>Warnings</strong>
-        <ul id="warnings" class="list"></ul>
-      </div>
+      <details class="panel-toggle">
+        <summary class="head">Diagnostics</summary>
+        <div class="body">
+          <details class="debug-group" open>
+            <summary>Current Model Debug</summary>
+            <div class="debug-body">
+              <div class="debug-grid">
+                <div class="debug-item"><div class="k">Loaded Model</div><div id="debugLoadedModel" class="v">None</div></div>
+                <div class="debug-item"><div class="k">Source Mode</div><div id="debugSourceMode" class="v">Waiting</div></div>
+                <div class="debug-item"><div class="k">Write Support</div><div id="debugWriteSupport" class="v">Unavailable</div></div>
+                <div class="debug-item"><div class="k">Server Path</div><div id="debugServerPath" class="v">Unavailable</div></div>
+              </div>
+            </div>
+          </details>
+          <details class="debug-group">
+            <summary>Mesh And Collision Debug</summary>
+            <div class="debug-body">
+              <div class="debug-grid">
+                <div class="debug-item"><div class="k">Node Selection</div><div id="debugNodeSelection" class="v">No model loaded.</div></div>
+                <div class="debug-item"><div class="k">Layer State</div><div id="debugLayerState" class="v">Visible: on, Collision: on</div></div>
+                <div class="debug-item"><div class="k">Mesh Collection</div><div id="debugMeshCollection" class="v">Waiting for model analysis.</div></div>
+                <div class="debug-item"><div class="k">Save And Export</div><div id="debugSaveExport" class="v">Load a model to inspect save/export state.</div></div>
+              </div>
+            </div>
+          </details>
+          <details class="debug-group">
+            <summary>Paths And Status</summary>
+            <div class="debug-body">
+              <div class="debug-grid">
+                <div class="debug-item"><div class="k">Workspace Path</div><div id="debugWorkspacePath" class="v">Unavailable</div></div>
+                <div class="debug-item"><div class="k">BeamNG Path</div><div id="debugBeamPath" class="v">Unavailable</div></div>
+                <div class="debug-item"><div class="k">Connection</div><div id="debugConnection" class="v">Waiting for local files or server-backed explorer.</div></div>
+                <div class="debug-item"><div class="k">Model Status</div><div id="debugModelStatus" class="v">Status: WAITING</div></div>
+              </div>
+              <div class="debug-actions">
+                <button id="copyDebugReportBtn" type="button">Copy Debug Report</button>
+              </div>
+            </div>
+          </details>
+          <details class="debug-group">
+            <summary>Errors And Warnings</summary>
+            <div class="debug-body">
+              <strong>Errors</strong>
+              <ul id="errors" class="list"></ul>
+              <strong>Warnings</strong>
+              <ul id="warnings" class="list"></ul>
+            </div>
+          </details>
+        </div>
+      </details>
     </section>
 
     <section class="card">
@@ -362,41 +725,71 @@
     </section>
 
     <section class="card full">
-      <div class="head">Batch Export</div>
-      <div class="body">
-        <div class="tiny">Export filtered model index data for automation, and save a preview PNG for the currently loaded model.</div>
-        <div class="button-row">
-          <button id="exportIndexJsonBtn" type="button">Export Filtered Index JSON</button>
-          <button id="exportIndexCsvBtn" type="button">Export Filtered Index CSV</button>
-          <button id="exportPreviewPngBtn" type="button">Export Current Preview PNG</button>
+      <details class="panel-toggle">
+        <summary class="head">Batch Export</summary>
+        <div class="body">
+          <div class="tiny">Export filtered model index data for automation, and save a preview PNG for the currently loaded model.</div>
+          <div class="button-row">
+            <button id="exportIndexJsonBtn" type="button">Export Filtered Index JSON</button>
+            <button id="exportIndexCsvBtn" type="button">Export Filtered Index CSV</button>
+            <button id="exportPreviewPngBtn" type="button">Export Current Preview PNG</button>
+          </div>
         </div>
-      </div>
+      </details>
     </section>
 
     <section class="card full">
-      <div class="head">ShapeEditor Handoff</div>
-      <div class="body">
-        <div class="stat-grid">
-          <div class="pill"><div class="k">Selected Asset</div><div id="selectedModelName" class="v">None</div></div>
-          <div class="pill"><div class="k">Explorer Mode</div><div id="explorerMode" class="v">Waiting</div></div>
+      <details class="panel-toggle">
+        <summary class="head">Beam-Ready DAE Export</summary>
+        <div class="body">
+          <div class="tiny">Normal workflow: click Save to write changes directly into the selected .dae source file. Use Export only when you need a separate copy.</div>
+          <div class="button-row">
+            <button id="saveBeamReadyBtn" type="button">Save With Precise Collision</button>
+            <button id="exportBeamReadyBtn" type="button">Export DAE Copy (Optional)</button>
+            <label class="switch">
+              <input id="previewBeamReady" type="checkbox" checked>
+              Preview generated Beam-ready DAE
+            </label>
+            <label class="switch">
+              <input id="splitCollisionByMesh" type="checkbox" checked>
+              Split collision by visible mesh collection
+            </label>
+          </div>
+          <div id="meshCollectionStatus" class="hint">Mesh collection detection waits for a loaded model.</div>
+          <div id="beamReadyStatus" class="hint">Load a model, then export Beam-ready DAE.</div>
         </div>
-        <div class="tiny">BeamNG does not expose a direct browser-to-ShapeEditor launch hook here, so the web tool provides the exact path you can paste or search inside BeamNG's Asset Browser / Shape Editor flow.</div>
-        <div style="margin-top:10px">
-          <div class="k">BeamNG Asset Path</div>
-          <div id="beamngPath" class="path-box">Unavailable for this source.</div>
+      </details>
+    </section>
+
+    <section class="card full">
+      <details class="panel-toggle">
+        <summary class="head">ShapeEditor Handoff</summary>
+        <div class="body">
+          <div class="stat-grid">
+            <div class="pill"><div class="k">Selected Asset</div><div id="selectedModelName" class="v">None</div></div>
+            <div class="pill"><div class="k">Explorer Mode</div><div id="explorerMode" class="v">Waiting</div></div>
+          </div>
+          <div class="tiny">BeamNG does not expose a direct browser-to-ShapeEditor launch hook here, so the web tool provides the exact path you can paste or search inside BeamNG's Asset Browser or Shape Editor flow.</div>
+          <div style="margin-top:10px">
+            <div class="k">BeamNG Asset Path</div>
+            <div id="beamngPath" class="path-box">Unavailable for this source.</div>
+          </div>
+          <div style="margin-top:10px">
+            <div class="k">Workspace Path</div>
+            <div id="workspacePath" class="path-box">Unavailable for this source.</div>
+          </div>
+          <div class="button-row">
+            <button id="copyBeamngPathBtn" type="button">Copy BeamNG Path</button>
+            <button id="copyWorkspacePathBtn" type="button">Copy Workspace Path</button>
+          </div>
         </div>
-        <div style="margin-top:10px">
-          <div class="k">Workspace Path</div>
-          <div id="workspacePath" class="path-box">Unavailable for this source.</div>
-        </div>
-        <div class="button-row">
-          <button id="copyBeamngPathBtn" type="button">Copy BeamNG Path</button>
-          <button id="copyWorkspacePathBtn" type="button">Copy Workspace Path</button>
-        </div>
-      </div>
+      </details>
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/ColladaLoader.js"></script>
   <script>
     const DB_NAME = 'beamng-asset-preview-db';
     const DB_VERSION = 1;
@@ -418,20 +811,48 @@
       sourceSelect: document.getElementById('sourceSelect'),
       modelSelect: document.getElementById('modelSelect'),
       searchInput: document.getElementById('searchInput'),
+      saveSourceBtn: document.getElementById('saveSourceBtn'),
       sampleBtn: document.getElementById('sampleBtn'),
       requireCollision: document.getElementById('requireCollision'),
       dropZone: document.getElementById('dropZone'),
+      viewportHost: document.getElementById('viewportHost'),
       canvas: document.getElementById('viewport'),
+      viewportModeBadge: document.getElementById('viewportModeBadge'),
+      beamLighting: document.getElementById('beamLighting'),
+      autoRotate: document.getElementById('autoRotate'),
+      exposureRange: document.getElementById('exposureRange'),
+      exposureValue: document.getElementById('exposureValue'),
+      showVisibleLayer: document.getElementById('showVisibleLayer'),
+      showCollisionLayer: document.getElementById('showCollisionLayer'),
+      layerVisibleOnlyBtn: document.getElementById('layerVisibleOnlyBtn'),
+      layerCollisionOnlyBtn: document.getElementById('layerCollisionOnlyBtn'),
+      layerBothBtn: document.getElementById('layerBothBtn'),
+      resetViewBtn: document.getElementById('resetViewBtn'),
+      nodeFilterList: document.getElementById('nodeFilterList'),
       connectionHint: document.getElementById('connectionHint'),
       status: document.getElementById('status'),
       fileName: document.getElementById('fileName'),
       geomCount: document.getElementById('geomCount'),
       triCount: document.getElementById('triCount'),
       vertCount: document.getElementById('vertCount'),
+      visibleMeshCount: document.getElementById('visibleMeshCount'),
       colGeomCount: document.getElementById('colGeomCount'),
       collisionStatus: document.getElementById('collisionStatus'),
       errors: document.getElementById('errors'),
       warnings: document.getElementById('warnings'),
+      debugLoadedModel: document.getElementById('debugLoadedModel'),
+      debugSourceMode: document.getElementById('debugSourceMode'),
+      debugWriteSupport: document.getElementById('debugWriteSupport'),
+      debugServerPath: document.getElementById('debugServerPath'),
+      debugNodeSelection: document.getElementById('debugNodeSelection'),
+      debugLayerState: document.getElementById('debugLayerState'),
+      debugMeshCollection: document.getElementById('debugMeshCollection'),
+      debugSaveExport: document.getElementById('debugSaveExport'),
+      debugWorkspacePath: document.getElementById('debugWorkspacePath'),
+      debugBeamPath: document.getElementById('debugBeamPath'),
+      debugConnection: document.getElementById('debugConnection'),
+      debugModelStatus: document.getElementById('debugModelStatus'),
+      copyDebugReportBtn: document.getElementById('copyDebugReportBtn'),
       assetTree: document.getElementById('assetTree'),
       materialSlotCount: document.getElementById('materialSlotCount'),
       materialCount: document.getElementById('materialCount'),
@@ -448,7 +869,13 @@
       copyWorkspacePathBtn: document.getElementById('copyWorkspacePathBtn'),
       exportIndexJsonBtn: document.getElementById('exportIndexJsonBtn'),
       exportIndexCsvBtn: document.getElementById('exportIndexCsvBtn'),
-      exportPreviewPngBtn: document.getElementById('exportPreviewPngBtn')
+      exportPreviewPngBtn: document.getElementById('exportPreviewPngBtn'),
+      exportBeamReadyBtn: document.getElementById('exportBeamReadyBtn'),
+      saveBeamReadyBtn: document.getElementById('saveBeamReadyBtn'),
+      previewBeamReady: document.getElementById('previewBeamReady'),
+      splitCollisionByMesh: document.getElementById('splitCollisionByMesh'),
+      meshCollectionStatus: document.getElementById('meshCollectionStatus'),
+      beamReadyStatus: document.getElementById('beamReadyStatus')
     };
 
     const ctx = els.canvas.getContext('2d');
@@ -456,11 +883,46 @@
     const modelMap = new Map();
     let currentSelectionKey = '';
     let lastRenderData = null;
+    let selectedNodeKeys = new Set();
+    let lastLoadedXmlText = '';
+    let lastLoadedSourceName = '';
     let currentModelMeta = null;
+    let lastMaterialInfo = null;
     const serverState = {
       available: false,
       shapesDir: '',
       workspaceRoot: ''
+    };
+
+    const realtimeState = {
+      available: !!(window.THREE && THREE.WebGLRenderer && THREE.ColladaLoader),
+      active: false,
+      renderer: null,
+      scene: null,
+      camera: null,
+      controls: null,
+      clock: null,
+      root: null,
+      resizeObserver: null,
+      meshEntries: [],
+      nodeObjects: new Map(),
+      lights: {
+        hemi: null,
+        sun: null,
+        fill: null
+      }
+    };
+
+    const cameraState = {
+      yaw: -Math.PI / 4,
+      pitch: Math.PI / 6,
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      dragging: false,
+      panMode: false,
+      lastX: 0,
+      lastY: 0
     };
 
     const startupOptions = {
@@ -477,6 +939,10 @@
         if ((n.localName || n.nodeName) === name) out.push(n);
       }
       return out;
+    }
+
+    function childLocalNameList(root, name) {
+      return Array.from(root && root.children ? root.children : []).filter((n) => (n.localName || n.nodeName) === name);
     }
 
     function attr(node, name) {
@@ -541,6 +1007,76 @@
 
     function setConnectionHint(message) {
       els.connectionHint.textContent = message;
+      if (els.debugConnection) els.debugConnection.textContent = message;
+    }
+
+    function setBeamReadyStatus(message, level = 'warn') {
+      els.beamReadyStatus.className = `hint ${level}-text`;
+      els.beamReadyStatus.textContent = message;
+      refreshDebugPanel();
+    }
+
+    function setMeshCollectionStatus(message, level = 'warn') {
+      els.meshCollectionStatus.className = `hint ${level}-text`;
+      els.meshCollectionStatus.textContent = message;
+      refreshDebugPanel();
+    }
+
+    function buildDebugReport() {
+      const nodes = lastRenderData && lastRenderData.nodes ? lastRenderData.nodes : [];
+      const selectedCount = nodes.filter((n) => selectedNodeKeys.has(n.key)).length;
+      const visibleCount = nodes.filter((n) => !n.isCollision).length;
+      const collisionCount = nodes.filter((n) => n.isCollision).length;
+      const lines = [
+        `Model: ${currentSelectionKey || lastLoadedSourceName || 'None'}`,
+        `Source mode: ${getExplorerModeLabel(currentModelMeta)}`,
+        `Write support: ${canWriteSource(currentModelMeta) ? 'Available' : 'Unavailable'}`,
+        `Server path: ${currentModelMeta && currentModelMeta.serverPath ? currentModelMeta.serverPath : 'Unavailable'}`,
+        `Workspace path: ${els.workspacePath.textContent.trim()}`,
+        `BeamNG path: ${els.beamngPath.textContent.trim()}`,
+        `Model status: ${els.status.textContent.trim()}`,
+        `Connection: ${els.connectionHint.textContent.trim()}`,
+        `Visible mesh nodes: ${els.visibleMeshCount.textContent.trim()}`,
+        `Collision geometries: ${els.colGeomCount.textContent.trim()}`,
+        `Node selection: ${selectedCount}/${nodes.length} selected` + (nodes.length ? ` (${visibleCount} visible, ${collisionCount} collision)` : ''),
+        `Layer state: visible=${els.showVisibleLayer.checked ? 'on' : 'off'}, collision=${els.showCollisionLayer.checked ? 'on' : 'off'}`,
+        `Mesh collection: ${els.meshCollectionStatus.textContent.trim()}`,
+        `Save/export: ${els.beamReadyStatus.textContent.trim()}`
+      ];
+      return lines.join('\n');
+    }
+
+    function refreshDebugPanel() {
+      const nodes = lastRenderData && lastRenderData.nodes ? lastRenderData.nodes : [];
+      const selectedCount = nodes.filter((n) => selectedNodeKeys.has(n.key)).length;
+      const visibleCount = nodes.filter((n) => !n.isCollision).length;
+      const collisionCount = nodes.filter((n) => n.isCollision).length;
+      if (els.debugLoadedModel) els.debugLoadedModel.textContent = currentSelectionKey || lastLoadedSourceName || 'None';
+      if (els.debugSourceMode) els.debugSourceMode.textContent = getExplorerModeLabel(currentModelMeta);
+      if (els.debugWriteSupport) els.debugWriteSupport.textContent = canWriteSource(currentModelMeta) ? 'Available' : 'Unavailable';
+      if (els.debugServerPath) els.debugServerPath.textContent = currentModelMeta && currentModelMeta.serverPath ? currentModelMeta.serverPath : 'Unavailable';
+      if (els.debugWorkspacePath) els.debugWorkspacePath.textContent = els.workspacePath.textContent.trim();
+      if (els.debugBeamPath) els.debugBeamPath.textContent = els.beamngPath.textContent.trim();
+      if (els.debugModelStatus) els.debugModelStatus.textContent = els.status.textContent.trim();
+      if (els.debugLayerState) {
+        els.debugLayerState.textContent = `Visible: ${els.showVisibleLayer.checked ? 'on' : 'off'}, Collision: ${els.showCollisionLayer.checked ? 'on' : 'off'}`;
+      }
+      if (els.debugNodeSelection) {
+        els.debugNodeSelection.textContent = nodes.length
+          ? `${selectedCount}/${nodes.length} selected (${visibleCount} visible, ${collisionCount} collision)`
+          : 'No model loaded.';
+      }
+      if (els.debugMeshCollection) els.debugMeshCollection.textContent = els.meshCollectionStatus.textContent.trim();
+      if (els.debugSaveExport) els.debugSaveExport.textContent = els.beamReadyStatus.textContent.trim();
+      if (els.debugConnection) els.debugConnection.textContent = els.connectionHint.textContent.trim();
+    }
+
+    function resetCameraView() {
+      cameraState.yaw = -Math.PI / 4;
+      cameraState.pitch = Math.PI / 6;
+      cameraState.zoom = 1;
+      cameraState.panX = 0;
+      cameraState.panY = 0;
     }
 
     function normalizePath(value) {
@@ -561,6 +1097,13 @@
       return 'Manual';
     }
 
+    function canWriteSource(rec) {
+      if (!rec) return false;
+      if (rec.fileHandle && rec.fileHandle.createWritable) return true;
+      if (rec.serverPath) return true;
+      return false;
+    }
+
     function setSelectionDetails(rec, key = '') {
       currentModelMeta = rec || null;
       els.selectedModelName.textContent = key || 'None';
@@ -571,6 +1114,12 @@
 
       els.workspacePath.textContent = workspacePath || 'Unavailable for this source.';
       els.beamngPath.textContent = beamngPath || 'Unavailable for this source.';
+      const canWrite = canWriteSource(rec);
+      els.saveSourceBtn.disabled = !canWrite;
+      els.saveSourceBtn.title = canWrite
+        ? 'Save current DAE changes back into the selected source file.'
+        : 'This source is read-only in browser mode. Use export if needed.';
+      refreshDebugPanel();
     }
 
     async function copyTextValue(value, missingMessage) {
@@ -591,8 +1140,11 @@
       }
     }
 
-    async function fetchJson(url) {
-      const response = await fetch(url, { cache: 'no-store' });
+    async function fetchJson(url, options = null) {
+      const response = await fetch(url, {
+        cache: 'no-store',
+        ...(options || {})
+      });
       const payload = await response.json();
       if (!response.ok || payload.ok === false) {
         throw new Error(payload.error || `Request failed (${response.status})`);
@@ -602,65 +1154,499 @@
 
     async function fetchText(url) {
       const response = await fetch(url, { cache: 'no-store' });
-      const payload = await response.text();
+      const body = await response.text();
       if (!response.ok) {
-        throw new Error(payload || `Request failed (${response.status})`);
+        try {
+          const payload = JSON.parse(body);
+          throw new Error(payload.error || `Request failed (${response.status})`);
+        } catch {
+          throw new Error(body || `Request failed (${response.status})`);
+        }
       }
-      return payload;
+      return body;
     }
 
-    function openDb() {
+    function encodeRelativeAssetPath(value) {
+      return normalizePath(value).split('/').filter(Boolean).map((part) => encodeURIComponent(part)).join('/');
+    }
+
+    function getModelBaseUrl() {
+      if (!currentModelMeta || !currentModelMeta.serverPath) return '';
+      const normalized = normalizePath(currentModelMeta.serverPath);
+      const parts = normalized.split('/').filter(Boolean);
+      parts.pop();
+      if (!parts.length) return `${window.location.origin}/files/`;
+      return `${window.location.origin}/files/${parts.map((part) => encodeURIComponent(part)).join('/')}/`;
+    }
+
+    function setViewportBadge(label, active = false) {
+      els.viewportModeBadge.textContent = label;
+      els.viewportModeBadge.style.borderColor = active ? '#6cb9dd' : '#425171';
+      els.viewportModeBadge.style.color = active ? '#ecf9ff' : '#d7e7f8';
+    }
+
+    function setFallbackViewport() {
+      realtimeState.active = false;
+      els.viewportHost.classList.add('hidden');
+      els.canvas.classList.remove('hidden');
+      setViewportBadge('Fallback Preview', false);
+    }
+
+    function toThreeColor(input, fallback = '#c98a46') {
+      try {
+        return new THREE.Color(input || fallback);
+      } catch {
+        return new THREE.Color(fallback);
+      }
+    }
+
+    function buildBeamMaterial(sourceMaterial, debugColor, wireframe = false) {
+      const color = sourceMaterial && sourceMaterial.color ? sourceMaterial.color.clone() : toThreeColor(debugColor || '#c98a46');
+      const material = new THREE.MeshStandardMaterial({
+        name: sourceMaterial && sourceMaterial.name ? sourceMaterial.name : 'beam-preview',
+        color,
+        map: sourceMaterial && sourceMaterial.map ? sourceMaterial.map : null,
+        transparent: !!(sourceMaterial && sourceMaterial.transparent),
+        opacity: sourceMaterial && typeof sourceMaterial.opacity === 'number' ? sourceMaterial.opacity : 1,
+        alphaTest: sourceMaterial && typeof sourceMaterial.alphaTest === 'number' ? sourceMaterial.alphaTest : 0,
+        metalness: 0.08,
+        roughness: 0.82,
+        wireframe,
+        side: sourceMaterial && sourceMaterial.transparent ? THREE.DoubleSide : THREE.FrontSide
+      });
+      if (!wireframe && material.map) material.map.encoding = THREE.sRGBEncoding;
+      return material;
+    }
+
+    function disposeRealtimeRoot() {
+      if (!realtimeState.root || !realtimeState.scene) return;
+      realtimeState.scene.remove(realtimeState.root);
+      realtimeState.root.traverse((obj) => {
+        if (!obj.isMesh) return;
+        if (obj.geometry) obj.geometry.dispose();
+        const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+        for (const material of materials) {
+          if (!material) continue;
+          if (material.map) material.map.dispose();
+          material.dispose();
+        }
+      });
+      realtimeState.root = null;
+      realtimeState.meshEntries = [];
+      realtimeState.nodeObjects = new Map();
+    }
+
+    function resizeRealtimeRenderer() {
+      if (!realtimeState.renderer || !realtimeState.camera) return;
+      const width = Math.max(1, els.viewportHost.clientWidth || els.canvas.clientWidth || els.canvas.width);
+      const height = Math.max(1, els.viewportHost.clientHeight || els.canvas.clientHeight || els.canvas.height);
+      realtimeState.renderer.setSize(width, height, false);
+      realtimeState.camera.aspect = width / height;
+      realtimeState.camera.updateProjectionMatrix();
+    }
+
+    function ensureRealtimeRenderer() {
+      if (!realtimeState.available) return false;
+      if (realtimeState.renderer) return true;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.shadowMap.enabled = false;
+      els.viewportHost.innerHTML = '';
+      els.viewportHost.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(46, 1, 0.01, 5000);
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.screenSpacePanning = true;
+      controls.rotateSpeed = 0.8;
+      controls.zoomSpeed = 0.8;
+      controls.panSpeed = 0.9;
+      controls.minDistance = 0.05;
+      controls.maxDistance = 2500;
+
+      const hemi = new THREE.HemisphereLight(0xc7dcff, 0x171d24, 0.95);
+      const sun = new THREE.DirectionalLight(0xfff2d9, 2.2);
+      sun.position.set(5, -7, 8);
+      const fill = new THREE.DirectionalLight(0x97c3ff, 0.55);
+      fill.position.set(-4, 5, 3);
+      scene.add(hemi, sun, fill);
+
+      realtimeState.renderer = renderer;
+      realtimeState.scene = scene;
+      realtimeState.camera = camera;
+      realtimeState.controls = controls;
+      realtimeState.clock = new THREE.Clock();
+      realtimeState.lights.hemi = hemi;
+      realtimeState.lights.sun = sun;
+      realtimeState.lights.fill = fill;
+
+      realtimeState.resizeObserver = new ResizeObserver(() => resizeRealtimeRenderer());
+      realtimeState.resizeObserver.observe(els.viewportHost);
+      resizeRealtimeRenderer();
+
+      const renderLoop = () => {
+        requestAnimationFrame(renderLoop);
+        if (!realtimeState.renderer || !realtimeState.scene || !realtimeState.camera) return;
+        if (realtimeState.controls) realtimeState.controls.update();
+        realtimeState.renderer.render(realtimeState.scene, realtimeState.camera);
+      };
+      renderLoop();
+      return true;
+    }
+
+    function applyRealtimeViewportSettings() {
+      if (!realtimeState.renderer || !realtimeState.controls) return;
+      const exposure = parseFloat(els.exposureRange.value || '1.05');
+      els.exposureValue.textContent = exposure.toFixed(2);
+      realtimeState.renderer.toneMappingExposure = exposure;
+      realtimeState.controls.autoRotate = !!els.autoRotate.checked;
+      realtimeState.controls.autoRotateSpeed = 1.1;
+
+      const beamLighting = !!els.beamLighting.checked;
+      realtimeState.lights.hemi.intensity = beamLighting ? 0.95 : 0.45;
+      realtimeState.lights.sun.intensity = beamLighting ? 2.2 : 1.15;
+      realtimeState.lights.fill.intensity = beamLighting ? 0.55 : 0.2;
+    }
+
+    function fitRealtimeCamera() {
+      if (!realtimeState.root || !realtimeState.camera || !realtimeState.controls) return;
+      const box = new THREE.Box3().setFromObject(realtimeState.root);
+      if (box.isEmpty()) return;
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const radius = Math.max(size.x, size.y, size.z, 0.25);
+
+      realtimeState.controls.target.copy(center);
+      realtimeState.camera.position.set(center.x + radius * 1.4, center.y - radius * 1.8, center.z + radius * 0.9);
+      realtimeState.camera.near = Math.max(radius / 1000, 0.01);
+      realtimeState.camera.far = Math.max(radius * 50, 500);
+      realtimeState.camera.updateProjectionMatrix();
+      realtimeState.controls.update();
+    }
+
+    function resolveRealtimeNodeKey(object, nodes) {
+      if (!nodes || !nodes.length) return '';
+      const lookup = new Map();
+      for (const node of nodes) {
+        lookup.set((node.label || '').toLowerCase(), node.key);
+        lookup.set((node.nodeId || '').toLowerCase(), node.key);
+      }
+
+      let cursor = object;
+      while (cursor) {
+        const name = (cursor.name || '').toLowerCase();
+        if (name && lookup.has(name)) return lookup.get(name);
+        cursor = cursor.parent;
+      }
+      return '';
+    }
+
+    function syncRealtimeVisibility() {
+      if (!realtimeState.active) return;
+      const showVisible = !!els.showVisibleLayer.checked;
+      const showCollision = !!els.showCollisionLayer.checked;
+
+      for (const entry of realtimeState.meshEntries) {
+        const selected = !entry.nodeKey || selectedNodeKeys.has(entry.nodeKey);
+        const layerVisible = entry.isCollision ? showCollision : showVisible;
+        entry.mesh.visible = selected && layerVisible;
+      }
+    }
+
+    function refreshLayerPresetButtons() {
+      const v = !!els.showVisibleLayer.checked;
+      const c = !!els.showCollisionLayer.checked;
+      els.layerVisibleOnlyBtn.classList.toggle('active', v && !c);
+      els.layerCollisionOnlyBtn.classList.toggle('active', !v && c);
+      els.layerBothBtn.classList.toggle('active', v && c);
+    }
+
+    function applyLayerPreset(preset) {
+      if (preset === 'visible') {
+        els.showVisibleLayer.checked = true;
+        els.showCollisionLayer.checked = false;
+      } else if (preset === 'collision') {
+        els.showVisibleLayer.checked = false;
+        els.showCollisionLayer.checked = true;
+      } else {
+        els.showVisibleLayer.checked = true;
+        els.showCollisionLayer.checked = true;
+      }
+      refreshLayerPresetButtons();
+      if (lastRenderData) drawPreview(lastRenderData);
+    }
+
+    function syncRealtimeMaterials() {
+      if (!realtimeState.active) return;
+      const mode = els.viewMode.value;
+      for (const entry of realtimeState.meshEntries) {
+        const next = mode === 'wireframe'
+          ? entry.wireMaterials
+          : mode === 'material'
+            ? entry.debugMaterials
+            : entry.renderMaterials;
+        entry.mesh.material = next.length === 1 ? next[0] : next;
+      }
+      setViewportBadge(mode === 'rendered' ? 'Realtime Material View' : mode === 'material' ? 'Realtime Material Debug' : 'Realtime Wireframe', true);
+    }
+
+    async function loadRealtimeViewport(xmlText, data) {
+      if (!ensureRealtimeRenderer()) {
+        setFallbackViewport();
+        return false;
+      }
+
+      try {
+        const loader = new THREE.ColladaLoader();
+        const basePath = getModelBaseUrl();
+        const collada = loader.parse(xmlText, basePath || window.location.href);
+
+        disposeRealtimeRoot();
+
+        const root = collada.scene || collada;
+        root.updateMatrixWorld(true);
+        realtimeState.root = root;
+        realtimeState.scene.add(root);
+        realtimeState.meshEntries = [];
+
+        root.traverse((obj) => {
+          if (!obj.isMesh) return;
+          const materials = Array.isArray(obj.material) ? obj.material : [obj.material || new THREE.MeshStandardMaterial({ color: '#c98a46' })];
+          const nodeKey = resolveRealtimeNodeKey(obj, data && data.nodes ? data.nodes : []);
+          const isCollision = hasCollisionNaming(obj.name) || !!((data && data.nodes || []).find((node) => node.key === nodeKey && node.isCollision));
+
+          const renderMaterials = materials.map((material, idx) => buildBeamMaterial(material, hashColor(`${obj.name || 'mesh'}_${idx}`), false));
+          const wireMaterials = materials.map((material, idx) => buildBeamMaterial(material, hashColor(`${obj.name || 'mesh'}_${idx}`), true));
+          const debugMaterials = materials.map((material, idx) => {
+            const debugMat = buildBeamMaterial(material, hashColor(material && material.name ? material.name : `${obj.name || 'mesh'}_${idx}`), false);
+            debugMat.map = null;
+            debugMat.emissive = debugMat.color.clone().multiplyScalar(0.08);
+            return debugMat;
+          });
+
+          obj.material = renderMaterials.length === 1 ? renderMaterials[0] : renderMaterials;
+          realtimeState.meshEntries.push({
+            mesh: obj,
+            nodeKey,
+            isCollision,
+            renderMaterials,
+            wireMaterials,
+            debugMaterials
+          });
+        });
+
+        realtimeState.active = true;
+        els.viewportHost.classList.remove('hidden');
+        els.canvas.classList.add('hidden');
+        applyRealtimeViewportSettings();
+        fitRealtimeCamera();
+        syncRealtimeMaterials();
+        syncRealtimeVisibility();
+        return true;
+      } catch (error) {
+        console.warn('Realtime viewport fallback:', error);
+        setFallbackViewport();
+        return false;
+      }
+    }
+
+    const IDB_NAME = 'beamng-asset-preview-web';
+    const IDB_VERSION = 1;
+    const IDB_SOURCE_STORE = 'sources';
+
+    function openSourcesDb() {
       return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains(DB_STORE)) {
-            db.createObjectStore(DB_STORE, { keyPath: 'id' });
+        const request = window.indexedDB.open(IDB_NAME, IDB_VERSION);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(IDB_SOURCE_STORE)) {
+            db.createObjectStore(IDB_SOURCE_STORE, { keyPath: 'id' });
           }
         };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Failed to open IndexedDB.'));
+      });
+    }
+
+    async function withSourceStore(mode, work) {
+      const db = await openSourcesDb();
+      try {
+        const tx = db.transaction(IDB_SOURCE_STORE, mode);
+        const store = tx.objectStore(IDB_SOURCE_STORE);
+        const result = await work(store);
+        await new Promise((resolve, reject) => {
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error || new Error('IndexedDB transaction failed.'));
+          tx.onabort = () => reject(tx.error || new Error('IndexedDB transaction aborted.'));
+        });
+        return result;
+      } finally {
+        db.close();
+      }
+    }
+
+    async function idbSaveSource(src) {
+      if (!src || src.type !== 'handle' || !src.handle) return;
+      const payload = {
+        id: src.id,
+        label: src.label,
+        type: src.type,
+        isDefault: !!src.isDefault,
+        handle: src.handle
+      };
+      await withSourceStore('readwrite', (store) => {
+        store.put(payload);
+        return Promise.resolve();
       });
     }
 
     async function idbGetAllSources() {
-      const db = await openDb();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(DB_STORE, 'readonly');
-        const store = tx.objectStore(DB_STORE);
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function idbSaveSource(rec) {
-      const db = await openDb();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(DB_STORE, 'readwrite');
-        tx.objectStore(DB_STORE).put(rec);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
+      return withSourceStore('readonly', (store) => new Promise((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error || new Error('Failed to read saved sources.'));
+      }));
     }
 
     async function idbDeleteSource(id) {
-      const db = await openDb();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(DB_STORE, 'readwrite');
-        tx.objectStore(DB_STORE).delete(id);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
+      if (!id) return;
+      await withSourceStore('readwrite', (store) => {
+        store.delete(id);
+        return Promise.resolve();
       });
     }
 
-    async function sourcePermission(handle, mode = 'read') {
-      if (!handle || !handle.queryPermission) return 'denied';
-      try {
-        return await handle.queryPermission({ mode });
-      } catch {
-        return 'denied';
+    function collectRenderData(xml) {
+      const triangles = [];
+      const points3d = [];
+      const nodes = [];
+      const geometryById = new Map();
+      for (const g of localNameList(xml, 'geometry')) {
+        const gid = attr(g, 'id');
+        if (gid) geometryById.set(gid, g);
       }
+      function extractGeometryTriangles(geo) {
+        const out = [];
+        const meshNode = childLocalNameList(geo, 'mesh')[0];
+        if (!meshNode) return out;
+        const verticesById = new Map();
+        for (const v of childLocalNameList(meshNode, 'vertices')) verticesById.set(attr(v, 'id'), v);
+        const sourceById = new Map();
+        for (const s of childLocalNameList(meshNode, 'source')) sourceById.set(attr(s, 'id'), s);
+        for (const tri of childLocalNameList(meshNode, 'triangles')) {
+          const inputs = childLocalNameList(tri, 'input');
+          if (!inputs.length) continue;
+          const materialName = attr(tri, 'material') || 'default';
+          const vInput = inputs.find((i) => attr(i, 'semantic') === 'VERTEX');
+          if (!vInput) continue;
+          const vOffset = parseInt(attr(vInput, 'offset') || '0', 10);
+          const vRef = attr(vInput, 'source').replace(/^#/, '');
+          const verticesNode = verticesById.get(vRef);
+          if (!verticesNode) continue;
+          const posInput = childLocalNameList(verticesNode, 'input').find((i) => attr(i, 'semantic') === 'POSITION');
+          if (!posInput) continue;
+          const posRef = attr(posInput, 'source').replace(/^#/, '');
+          const src = sourceById.get(posRef);
+          if (!src) continue;
+          const fa = childLocalNameList(src, 'float_array')[0];
+          if (!fa) continue;
+          const raw = parseNums(text(fa), false);
+          if (raw.length < 3) continue;
+          const pos = [];
+          for (let i = 0; i + 2 < raw.length; i += 3) {
+            pos.push({ x: raw[i], y: raw[i + 1], z: raw[i + 2] });
+          }
+          const pNode = childLocalNameList(tri, 'p')[0];
+          if (!pNode) continue;
+          const idx = parseNums(text(pNode), true);
+          if (!idx.length) continue;
+          let maxOffset = 0;
+          for (const input of inputs) {
+            const off = parseInt(attr(input, 'offset') || '0', 10);
+            if (off > maxOffset) maxOffset = off;
+          }
+          const stride = maxOffset + 1;
+          const triN = Math.floor(idx.length / (3 * stride));
+          for (let t = 0; t < triN; t++) {
+            const b = t * 3 * stride;
+            const i0 = idx[b + vOffset];
+            const i1 = idx[b + stride + vOffset];
+            const i2 = idx[b + (2 * stride) + vOffset];
+            if (i0 < 0 || i1 < 0 || i2 < 0) continue;
+            if (i0 >= pos.length || i1 >= pos.length || i2 >= pos.length) continue;
+            out.push({ a: pos[i0], b: pos[i1], c: pos[i2], material: materialName });
+          }
+        }
+        return out;
+      }
+      const geometryTrianglesById = new Map();
+      for (const [gid, geo] of geometryById.entries()) {
+        geometryTrianglesById.set(gid, extractGeometryTriangles(geo));
+      }
+      const sceneRoot = getActiveVisualScene(xml);
+      const sceneNodes = localNameList(sceneRoot, 'node');
+      const nodeStats = new Map();
+      for (const n of sceneNodes) {
+        const nodeId = attr(n, 'id') || attr(n, 'name') || `node_${nodeStats.size + 1}`;
+        const nodeLabel = attr(n, 'name') || attr(n, 'id') || nodeId;
+        const nodeKey = `${nodeId}::${nodeLabel}`;
+        const nodeIsCollision = hasCollisionNaming(nodeId) || hasCollisionNaming(nodeLabel);
+        for (const ig of childLocalNameList(n, 'instance_geometry')) {
+          const ref = attr(ig, 'url').replace(/^#/, '');
+          if (!ref) continue;
+          const sourceGeo = geometryById.get(ref);
+          const triList = geometryTrianglesById.get(ref) || [];
+          const geoIsCollision = sourceGeo && (hasCollisionNaming(attr(sourceGeo, 'id')) || hasCollisionNaming(attr(sourceGeo, 'name')));
+          const isCollision = !!(nodeIsCollision || geoIsCollision);
+          if (!nodeStats.has(nodeKey)) {
+            nodeStats.set(nodeKey, {
+              key: nodeKey,
+              label: nodeLabel,
+              nodeId,
+              isCollision,
+              triangleCount: 0,
+              geometries: new Set()
+            });
+          }
+          const stat = nodeStats.get(nodeKey);
+          stat.geometries.add(ref);
+          stat.triangleCount += triList.length;
+          for (const tri of triList) {
+            const next = {
+              a: { x: tri.a.x, y: tri.a.y, z: tri.a.z },
+              b: { x: tri.b.x, y: tri.b.y, z: tri.b.z },
+              c: { x: tri.c.x, y: tri.c.y, z: tri.c.z },
+              material: tri.material,
+              nodeKey,
+              nodeLabel,
+              isCollision,
+              geometryId: ref
+            };
+            triangles.push(next);
+            points3d.push(next.a, next.b, next.c);
+          }
+        }
+      }
+      for (const s of nodeStats.values()) {
+        nodes.push({
+          key: s.key,
+          label: s.label,
+          nodeId: s.nodeId,
+          isCollision: s.isCollision,
+          triangleCount: s.triangleCount,
+          geometryCount: s.geometries.size
+        });
+      }
+      nodes.sort((a, b) => a.label.localeCompare(b.label));
+      if (!selectedNodeKeys.size) {
+        for (const n of nodes) selectedNodeKeys.add(n.key);
+      }
+      return { triangles, points3d, nodes };
     }
 
     async function ensureSourcePermission(rec) {
@@ -881,10 +1867,366 @@
       renderMaterialInfo({ slots: [], materials: [], materialCount: 0, effects: [], textures: [] });
     }
 
+    function hasCollisionNaming(value) {
+      return /(^|[_.-])(colmesh|collision|collider|col)([_.-]|$)/i.test(value || '');
+    }
+
+    function getOrCreateLibraryNode(xml, libraryName) {
+      const root = xml.documentElement;
+      let node = localNameList(root, libraryName)[0];
+      if (!node) {
+        node = xml.createElementNS(root.namespaceURI, libraryName);
+        root.appendChild(node);
+      }
+      return node;
+    }
+
+    function getActiveVisualScene(xml) {
+      const root = xml.documentElement;
+      const lib = getOrCreateLibraryNode(xml, 'library_visual_scenes');
+      const ivsRef = localNameList(root, 'instance_visual_scene')[0];
+      const ref = ivsRef ? attr(ivsRef, 'url').replace(/^#/, '') : '';
+      const scenes = localNameList(lib, 'visual_scene');
+
+      if (ref) {
+        const sceneMatch = scenes.find((s) => attr(s, 'id') === ref || attr(s, 'name') === ref);
+        if (sceneMatch) return sceneMatch;
+      }
+
+      if (scenes.length) return scenes[0];
+
+      const scene = xml.createElementNS(root.namespaceURI, 'visual_scene');
+      scene.setAttribute('id', 'Scene');
+      scene.setAttribute('name', 'Scene');
+      lib.appendChild(scene);
+
+      let sceneRoot = localNameList(root, 'scene')[0];
+      if (!sceneRoot) {
+        sceneRoot = xml.createElementNS(root.namespaceURI, 'scene');
+        root.appendChild(sceneRoot);
+      }
+
+      let ivs = localNameList(sceneRoot, 'instance_visual_scene')[0];
+      if (!ivs) {
+        ivs = xml.createElementNS(root.namespaceURI, 'instance_visual_scene');
+        sceneRoot.appendChild(ivs);
+      }
+      ivs.setAttribute('url', '#Scene');
+
+      return scene;
+    }
+
+    function getNextUniqueId(existingIds, baseId) {
+      let next = baseId;
+      let idx = 1;
+      while (existingIds.has(next)) {
+        idx += 1;
+        next = `${baseId}_${idx}`;
+      }
+      existingIds.add(next);
+      return next;
+    }
+
+    function findNextUniqueId(existingIds, baseId) {
+      let next = baseId;
+      let idx = 1;
+      while (existingIds.has(next)) {
+        idx += 1;
+        next = `${baseId}_${idx}`;
+      }
+      return next;
+    }
+
+    function remapGeometryIds(geometryClone, oldGeomId, newGeomId, existingIds) {
+      const allElements = [geometryClone, ...localNameList(geometryClone, '*')];
+      const idMap = new Map();
+
+      for (const el of allElements) {
+        const oldId = attr(el, 'id');
+        if (!oldId) continue;
+
+        let candidate;
+        if (oldId === oldGeomId) {
+          candidate = newGeomId;
+        } else if (oldId.startsWith(`${oldGeomId}-`)) {
+          candidate = `${newGeomId}${oldId.slice(oldGeomId.length)}`;
+        } else {
+          candidate = `${newGeomId}-${oldId}`;
+        }
+
+        idMap.set(oldId, getNextUniqueId(existingIds, candidate));
+      }
+
+      for (const el of allElements) {
+        const oldId = attr(el, 'id');
+        if (oldId && idMap.has(oldId)) {
+          el.setAttribute('id', idMap.get(oldId));
+        }
+
+        for (const attrName of ['source', 'url', 'target']) {
+          const value = attr(el, attrName);
+          if (!value || !value.startsWith('#')) continue;
+          const ref = value.slice(1);
+          if (idMap.has(ref)) {
+            el.setAttribute(attrName, `#${idMap.get(ref)}`);
+          }
+        }
+      }
+    }
+
+    function copyNodeTransforms(sourceNode, targetNode) {
+      if (!sourceNode || !targetNode || !sourceNode.children) return;
+      const transformTags = new Set(['matrix', 'translate', 'rotate', 'scale', 'lookat', 'skew']);
+      for (const child of sourceNode.children) {
+        const tag = child.localName || child.nodeName;
+        if (transformTags.has(tag)) {
+          targetNode.appendChild(child.cloneNode(true));
+        }
+      }
+    }
+
+    function removeGeneratedCollisionArtifacts(xml) {
+      const geometryLib = getOrCreateLibraryNode(xml, 'library_geometries');
+      const visualScene = getActiveVisualScene(xml);
+      const generatedCollisionPattern = /^Colmesh-\d+(?:(?:-(?:mesh|geo|node))(?:_\d+)?)?$/i;
+
+      const geometryIdsToRemove = new Set();
+      for (const geom of localNameList(geometryLib, 'geometry')) {
+        const geomId = attr(geom, 'id');
+        const geomName = attr(geom, 'name');
+        if (!generatedCollisionPattern.test(geomId) && !generatedCollisionPattern.test(geomName)) continue;
+        if (geomId) geometryIdsToRemove.add(geomId);
+        geom.remove();
+      }
+
+      for (const node of localNameList(visualScene, 'node')) {
+        const nodeId = attr(node, 'id');
+        const nodeName = attr(node, 'name');
+        const instanceGeometries = localNameList(node, 'instance_geometry');
+        const referencesGeneratedCollision = instanceGeometries.some((ig) => {
+          const ref = attr(ig, 'url').replace(/^#/, '');
+          return geometryIdsToRemove.has(ref) || generatedCollisionPattern.test(ref);
+        });
+
+        if (generatedCollisionPattern.test(nodeId) || generatedCollisionPattern.test(nodeName) || referencesGeneratedCollision) {
+          node.remove();
+        }
+      }
+    }
+
+    function getVisibleGeometryInstances(xml) {
+      const visualScene = getActiveVisualScene(xml);
+      const geometryById = new Map();
+      for (const g of localNameList(xml, 'geometry')) {
+        const id = attr(g, 'id');
+        if (id) geometryById.set(id, g);
+      }
+
+      const out = [];
+      for (const ig of localNameList(visualScene, 'instance_geometry')) {
+        const ref = attr(ig, 'url').replace(/^#/, '');
+        if (!ref) continue;
+        const node = ig.parentNode;
+        const nodeId = attr(node, 'id');
+        const nodeName = attr(node, 'name');
+        const geom = geometryById.get(ref);
+        const geomId = geom ? attr(geom, 'id') : '';
+        const geomName = geom ? attr(geom, 'name') : '';
+        const isCollision = hasCollisionNaming(nodeId)
+          || hasCollisionNaming(nodeName)
+          || hasCollisionNaming(geomId)
+          || hasCollisionNaming(geomName)
+          || hasCollisionNaming(ref);
+        if (isCollision) continue;
+        if (!geom) continue;
+
+        out.push({
+          ref,
+          geom,
+          node,
+          nodeId: nodeId || '',
+          nodeName: nodeName || ''
+        });
+      }
+
+      const unique = [];
+      const seen = new Set();
+      for (const item of out) {
+        const key = `${item.ref}::${item.nodeId}::${item.nodeName}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(item);
+      }
+      return unique;
+    }
+
+    function updateMeshCollectionStatusFromXml(xml) {
+      const visibleInstances = getVisibleGeometryInstances(xml);
+      if (!visibleInstances.length) {
+        setMeshCollectionStatus('No visible mesh nodes detected for grouped collision export.', 'warn');
+        return;
+      }
+
+      const names = visibleInstances.map((x) => x.nodeName || x.nodeId || x.ref);
+      const preview = names.slice(0, 3).join(', ');
+      const extra = names.length > 3 ? ` (+${names.length - 3} more)` : '';
+      if (visibleInstances.length === 3) {
+        setMeshCollectionStatus(`Detected a 3-mesh collection: ${preview}${extra}. Split export will map Colmesh-1..3.`, 'ok');
+      } else if (visibleInstances.length >= 100) {
+        setMeshCollectionStatus(`Detected ${visibleInstances.length} visible mesh node(s): ${preview}${extra}. High-density detection is active and split export supports 100+ meshes.`, 'ok');
+      } else {
+        setMeshCollectionStatus(`Detected ${visibleInstances.length} visible mesh node(s): ${preview}${extra}. Split export will create one collision mesh per visible mesh.`, 'ok');
+      }
+    }
+
+    function appendIdentityTransform(xml, node) {
+      const matrix = xml.createElementNS(xml.documentElement.namespaceURI, 'matrix');
+      matrix.setAttribute('sid', 'transform');
+      matrix.textContent = '1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1';
+      node.appendChild(matrix);
+    }
+
+    function ensureCollisionContainer(xml, visualScene, existingIds) {
+      const directNodes = childLocalNameList(visualScene, 'node');
+      if (!directNodes.length) return visualScene;
+
+      if (directNodes.length === 1 && !childLocalNameList(directNodes[0], 'instance_geometry').length) {
+        return directNodes[0];
+      }
+
+      const rootNode = xml.createElementNS(xml.documentElement.namespaceURI, 'node');
+      const rootId = getNextUniqueId(existingIds, 'base00');
+      rootNode.setAttribute('id', rootId);
+      rootNode.setAttribute('name', rootId);
+      rootNode.setAttribute('type', 'NODE');
+      appendIdentityTransform(xml, rootNode);
+
+      const startNode = xml.createElementNS(xml.documentElement.namespaceURI, 'node');
+      const startId = getNextUniqueId(existingIds, 'start01');
+      startNode.setAttribute('id', startId);
+      startNode.setAttribute('name', startId);
+      startNode.setAttribute('type', 'NODE');
+      appendIdentityTransform(xml, startNode);
+
+      for (const child of directNodes) {
+        startNode.appendChild(child);
+      }
+
+      rootNode.appendChild(startNode);
+      visualScene.appendChild(rootNode);
+      return startNode;
+    }
+
+    function buildBeamReadyDae(xmlText, options = {}) {
+      const splitByVisibleMeshes = !!options.splitByVisibleMeshes;
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, 'application/xml');
+      const parseErr = xml.getElementsByTagName('parsererror')[0];
+      if (parseErr) throw new Error('Input DAE has invalid XML.');
+
+      if (!xml.documentElement || xml.documentElement.localName !== 'COLLADA') {
+        throw new Error('Input file is not a COLLADA DAE.');
+      }
+
+      const geometryLib = getOrCreateLibraryNode(xml, 'library_geometries');
+      const visualScene = getActiveVisualScene(xml);
+      removeGeneratedCollisionArtifacts(xml);
+
+      const existingIds = new Set();
+      for (const n of localNameList(xml, '*')) {
+        const id = attr(n, 'id');
+        if (id) existingIds.add(id);
+      }
+
+      const visibleInstances = getVisibleGeometryInstances(xml);
+      if (!visibleInstances.length) {
+        throw new Error('No visible geometry found for precise collision cloning.');
+      }
+
+      const targets = splitByVisibleMeshes ? visibleInstances : [visibleInstances[0]];
+      if (!splitByVisibleMeshes && visibleInstances.length > 1) {
+        throw new Error('Multiple visible meshes found. Enable "Split collision by visible mesh collection" to export grouped collision layers.');
+      }
+
+      const targetContainer = targets.some((target) => target.node && target.node.parentNode === visualScene)
+        ? ensureCollisionContainer(xml, visualScene, existingIds)
+        : null;
+      const firstSourceParent = targets[0].node && targets[0].node.parentNode;
+      const defaultCollisionParent = targetContainer || (firstSourceParent && firstSourceParent.nodeType === 1 ? firstSourceParent : visualScene);
+
+      let collisionLayerNode = null;
+      if (splitByVisibleMeshes && targets.length > 1) {
+        collisionLayerNode = xml.createElementNS(xml.documentElement.namespaceURI, 'node');
+        const collisionLayerId = getNextUniqueId(existingIds, 'collision-1');
+        collisionLayerNode.setAttribute('id', collisionLayerId);
+        collisionLayerNode.setAttribute('name', collisionLayerId);
+        collisionLayerNode.setAttribute('type', 'NODE');
+        appendIdentityTransform(xml, collisionLayerNode);
+      }
+
+      const collisionGeometryIds = [];
+      for (let i = 0; i < targets.length; i++) {
+        const target = targets[i];
+        const sourceGeom = target.geom;
+        if (!sourceGeom) {
+          throw new Error('Visible geometry reference is missing from library_geometries.');
+        }
+
+        const sourceGeomId = attr(sourceGeom, 'id');
+        if (!sourceGeomId) {
+          throw new Error('Visible geometry id is missing.');
+        }
+
+        const colBase = `Colmesh-${i + 1}`;
+        const colGeomId = findNextUniqueId(existingIds, `${colBase}-mesh`);
+        const colNodeId = getNextUniqueId(existingIds, colBase);
+
+        const clone = sourceGeom.cloneNode(true);
+        clone.setAttribute('name', colBase);
+        remapGeometryIds(clone, sourceGeomId, colGeomId, existingIds);
+        clone.setAttribute('name', colBase);
+        geometryLib.appendChild(clone);
+
+        const colNode = xml.createElementNS(xml.documentElement.namespaceURI, 'node');
+        colNode.setAttribute('id', colNodeId);
+        colNode.setAttribute('name', colBase);
+        colNode.setAttribute('type', 'NODE');
+        copyNodeTransforms(target.node, colNode);
+
+        const inst = xml.createElementNS(xml.documentElement.namespaceURI, 'instance_geometry');
+        inst.setAttribute('url', `#${attr(clone, 'id')}`);
+        inst.setAttribute('name', colBase);
+        colNode.appendChild(inst);
+
+        if (collisionLayerNode) {
+          collisionLayerNode.appendChild(colNode);
+        } else {
+          const sourceParent = target.node && target.node.parentNode;
+          const collisionParent = targetContainer || (sourceParent && sourceParent.nodeType === 1 ? sourceParent : visualScene);
+          collisionParent.appendChild(colNode);
+        }
+
+        collisionGeometryIds.push(attr(clone, 'id'));
+      }
+
+      if (collisionLayerNode) {
+        defaultCollisionParent.appendChild(collisionLayerNode);
+      }
+
+      const serializer = new XMLSerializer();
+      return {
+        xml: serializer.serializeToString(xml),
+        collisionGeometryIds,
+        sourceVisibleMeshCount: visibleInstances.length,
+        splitByVisibleMeshes
+      };
+    }
+
     function analyze(xml, sourceName) {
       const errors = [];
       const warnings = [];
       const collisionPattern = /(^|[_.-])(colmesh|collision|collider|col)([_.-]|$)/i;
+      const visibleInstances = getVisibleGeometryInstances(xml);
 
       if (!xml || !xml.documentElement || xml.documentElement.localName !== 'COLLADA') {
         errors.push('Root node is not COLLADA.');
@@ -974,93 +2316,15 @@
         geometryCount: geometries.length,
         triCount,
         vertCount,
+        visibleMeshCount: visibleInstances.length,
         colGeomCount: collisionGeo.size,
         collisionGood
       };
     }
 
-    function collectRenderData(xml) {
-      const triangles = [];
-      const points3d = [];
-
-      const geometryById = new Map();
-      for (const g of localNameList(xml, 'geometry')) geometryById.set(attr(g, 'id'), g);
-
-      for (const geo of geometryById.values()) {
-        const verticesById = new Map();
-        for (const v of localNameList(geo, 'vertices')) verticesById.set(attr(v, 'id'), v);
-
-        const sourceById = new Map();
-        for (const s of localNameList(geo, 'source')) sourceById.set(attr(s, 'id'), s);
-
-        for (const tri of localNameList(geo, 'triangles')) {
-          const inputs = localNameList(tri, 'input');
-          if (!inputs.length) continue;
-          const materialName = attr(tri, 'material') || 'default';
-
-          const vInput = inputs.find(i => attr(i, 'semantic') === 'VERTEX');
-          if (!vInput) continue;
-
-          const vOffset = parseInt(attr(vInput, 'offset') || '0', 10);
-          const vRef = attr(vInput, 'source').replace(/^#/, '');
-          const verticesNode = verticesById.get(vRef);
-          if (!verticesNode) continue;
-
-          const posInput = localNameList(verticesNode, 'input').find(i => attr(i, 'semantic') === 'POSITION');
-          if (!posInput) continue;
-
-          const posRef = attr(posInput, 'source').replace(/^#/, '');
-          const src = sourceById.get(posRef);
-          if (!src) continue;
-
-          const fa = localNameList(src, 'float_array')[0];
-          if (!fa) continue;
-
-          const raw = parseNums(text(fa), false);
-          if (raw.length < 3) continue;
-
-          const pos = [];
-          for (let i = 0; i + 2 < raw.length; i += 3) {
-            const x = raw[i];
-            const y = raw[i + 1];
-            const z = raw[i + 2];
-            const p = { x, y, z };
-            pos.push(p);
-            points3d.push(p);
-          }
-
-          const pNode = localNameList(tri, 'p')[0];
-          if (!pNode) continue;
-          const idx = parseNums(text(pNode), true);
-          if (!idx.length) continue;
-
-          let maxOffset = 0;
-          for (const input of inputs) {
-            const off = parseInt(attr(input, 'offset') || '0', 10);
-            if (off > maxOffset) maxOffset = off;
-          }
-          const stride = maxOffset + 1;
-          const triN = Math.floor(idx.length / (3 * stride));
-
-          for (let t = 0; t < triN; t++) {
-            const b = t * 3 * stride;
-            const i0 = idx[b + vOffset];
-            const i1 = idx[b + stride + vOffset];
-            const i2 = idx[b + (2 * stride) + vOffset];
-            if (i0 < 0 || i1 < 0 || i2 < 0) continue;
-            if (i0 >= pos.length || i1 >= pos.length || i2 >= pos.length) continue;
-            const p0 = pos[i0], p1 = pos[i1], p2 = pos[i2];
-            triangles.push({ a: p0, b: p1, c: p2, material: materialName });
-          }
-        }
-      }
-
-      return { triangles, points3d };
-    }
-
     function projectScene(points3d) {
-      const yaw = -Math.PI / 4;
-      const pitch = Math.PI / 6;
+      const yaw = cameraState.yaw;
+      const pitch = cameraState.pitch;
       const cy = Math.cos(yaw), sy = Math.sin(yaw);
       const cp = Math.cos(pitch), sp = Math.sin(pitch);
 
@@ -1088,12 +2352,12 @@
       const margin = 26;
       const sx = (w - margin * 2) / spanX;
       const syScale = (h - margin * 2) / spanY;
-      const s = Math.min(sx, syScale);
+      const s = Math.min(sx, syScale) * cameraState.zoom;
 
       return {
         toScreen: (p) => {
-          const x = (p.x - minX) * s + margin;
-          const y = h - ((p.y - minY) * s + margin);
+          const x = (p.x - minX) * s + margin + cameraState.panX;
+          const y = h - ((p.y - minY) * s + margin) + cameraState.panY;
           return { x, y };
         },
         rotate: (p) => {
@@ -1107,6 +2371,57 @@
       };
     }
 
+    function getRenderableTriangles(data) {
+      if (!data || !data.triangles) return [];
+      const showVisible = !!els.showVisibleLayer.checked;
+      const showCollision = !!els.showCollisionLayer.checked;
+      return data.triangles.filter((t) => {
+        if (!selectedNodeKeys.has(t.nodeKey)) return false;
+        if (t.isCollision && !showCollision) return false;
+        if (!t.isCollision && !showVisible) return false;
+        return true;
+      });
+    }
+
+    function renderNodeFilterList(nodes) {
+      if (!nodes || !nodes.length) {
+        els.nodeFilterList.textContent = 'No node data in this scene.';
+        refreshDebugPanel();
+        return;
+      }
+
+      const host = document.createElement('div');
+      for (const n of nodes) {
+        const row = document.createElement('label');
+        row.className = 'node-item';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = selectedNodeKeys.has(n.key);
+        cb.addEventListener('change', () => {
+          if (cb.checked) selectedNodeKeys.add(n.key);
+          else selectedNodeKeys.delete(n.key);
+          if (lastRenderData) drawPreview(lastRenderData);
+        });
+
+        const name = document.createElement('span');
+        name.textContent = n.label;
+
+        const meta = document.createElement('span');
+        meta.className = 'meta';
+        meta.textContent = `(${n.isCollision ? 'collision' : 'visible'}, tris: ${n.triangleCount})`;
+
+        row.appendChild(cb);
+        row.appendChild(name);
+        row.appendChild(meta);
+        host.appendChild(row);
+      }
+
+      els.nodeFilterList.innerHTML = '';
+      els.nodeFilterList.appendChild(host);
+      refreshDebugPanel();
+    }
+
     function hashColor(name) {
       let h = 0;
       for (let i = 0; i < name.length; i++) h = ((h << 5) - h + name.charCodeAt(i)) | 0;
@@ -1115,11 +2430,18 @@
     }
 
     function drawPreview(data) {
+      if (realtimeState.active) {
+        syncRealtimeMaterials();
+        syncRealtimeVisibility();
+        return;
+      }
+
       drawGrid();
-      if (!data.points3d.length || !data.triangles.length) {
+      const renderable = getRenderableTriangles(data);
+      if (!data.points3d.length || !renderable.length) {
         ctx.fillStyle = '#e6edf5';
         ctx.font = 'bold 24px Segoe UI';
-        ctx.fillText('No mesh preview data found', 28, 46);
+        ctx.fillText('No mesh data for current layers/nodes', 28, 46);
         return;
       }
 
@@ -1129,7 +2451,7 @@
       const L = Math.hypot(light.x, light.y, light.z) || 1;
       light.x /= L; light.y /= L; light.z /= L;
 
-      const tris = data.triangles.map((t) => {
+      const tris = renderable.map((t) => {
         const ra = prj.rotate(t.a), rb = prj.rotate(t.b), rc = prj.rotate(t.c);
         const sa = prj.toScreen(ra), sb = prj.toScreen(rb), sc = prj.toScreen(rc);
 
@@ -1199,30 +2521,37 @@
       els.geomCount.textContent = String(result.geometryCount);
       els.triCount.textContent = String(result.triCount);
       els.vertCount.textContent = String(result.vertCount);
+      els.visibleMeshCount.textContent = String(result.visibleMeshCount || 0);
       els.colGeomCount.textContent = String(result.colGeomCount);
       els.collisionStatus.textContent = result.collisionGood ? 'GOOD' : 'WARN';
       updateLists(els.errors, result.errors);
       updateLists(els.warnings, result.warnings);
+      refreshDebugPanel();
     }
 
-    function loadXmlText(xmlText, name) {
+    async function loadXmlText(xmlText, name) {
       const parser = new DOMParser();
       const xml = parser.parseFromString(xmlText, 'application/xml');
       const parserError = xml.getElementsByTagName('parsererror')[0];
       if (parserError) {
         lastRenderData = null;
+        lastLoadedXmlText = '';
+        lastLoadedSourceName = '';
         clearMaterialInfo();
+        setMeshCollectionStatus('Mesh collection detection unavailable because XML failed to parse.', 'fail');
         renderResult({
           status: 'FAIL',
           sourceName: name,
           geometryCount: 0,
           triCount: 0,
           vertCount: 0,
+          visibleMeshCount: 0,
           colGeomCount: 0,
           collisionGood: false,
           errors: ['XML parse error.'],
           warnings: []
         });
+        setFallbackViewport();
         drawGrid();
         return;
       }
@@ -1230,10 +2559,18 @@
       const result = analyze(xml, name);
       const data = collectRenderData(xml);
       const materialInfo = inspectMaterials(xml);
+      lastMaterialInfo = materialInfo;
+      selectedNodeKeys = new Set((data.nodes || []).map((n) => n.key));
+      lastLoadedXmlText = xmlText;
+      lastLoadedSourceName = name || '';
       lastRenderData = data;
+      updateMeshCollectionStatusFromXml(xml);
+      await loadRealtimeViewport(xmlText, data);
       drawPreview(data);
+      renderNodeFilterList(data.nodes || []);
       renderResult(result);
       renderMaterialInfo(materialInfo);
+      setBeamReadyStatus('Ready to export Beam-ready DAE with precise collision. Enable split export for multi-mesh collections.', 'ok');
     }
 
     function triggerDownload(fileName, content, contentType) {
@@ -1304,16 +2641,112 @@
 
       const name = sanitizeName(currentSelectionKey.split('/').pop() || 'preview');
       const link = document.createElement('a');
-      link.href = els.canvas.toDataURL('image/png');
+      link.href = realtimeState.active && realtimeState.renderer
+        ? realtimeState.renderer.domElement.toDataURL('image/png')
+        : els.canvas.toDataURL('image/png');
       link.download = `${name}_preview.png`;
       document.body.appendChild(link);
       link.click();
       link.remove();
     }
 
+    function exportBeamReadyDae() {
+      if (!lastLoadedXmlText) {
+        setBeamReadyStatus('Load a DAE model first.', 'warn');
+        return;
+      }
+
+      try {
+        const result = buildBeamReadyDae(lastLoadedXmlText, { splitByVisibleMeshes: !!els.splitCollisionByMesh.checked });
+        const baseName = sanitizeName((lastLoadedSourceName || currentSelectionKey || 'asset').replace(/\.dae$/i, ''));
+        const fileName = `${baseName}_beam_ready.dae`;
+        triggerDownload(fileName, result.xml, 'application/xml');
+        const count = result.collisionGeometryIds.length;
+        const previewIds = result.collisionGeometryIds.slice(0, 3).join(', ');
+        const previewTail = count > 3 ? ` (+${count - 3} more)` : '';
+        setBeamReadyStatus(
+          `Exported ${fileName}: ${count} collision mesh layer(s) from ${result.sourceVisibleMeshCount} visible mesh node(s) [${previewIds}${previewTail}]`,
+          'ok'
+        );
+
+        if (els.previewBeamReady.checked) {
+          loadXmlText(result.xml, fileName);
+        }
+      } catch (error) {
+        setBeamReadyStatus(`Beam-ready export failed: ${error.message}`, 'fail');
+      }
+    }
+
+    async function writeXmlToCurrentSource(xmlText) {
+      if (!currentModelMeta) {
+        throw new Error('No source file is selected to save.');
+      }
+      if (!xmlText) {
+        throw new Error('No XML content available to save.');
+      }
+
+      if (currentModelMeta.fileHandle && currentModelMeta.fileHandle.createWritable) {
+        const writable = await currentModelMeta.fileHandle.createWritable();
+        await writable.write(xmlText);
+        await writable.close();
+        return currentSelectionKey || lastLoadedSourceName || 'selected model';
+      }
+
+      if (currentModelMeta.serverPath) {
+        await fetchJson('/api/save-model', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            path: currentModelMeta.serverPath,
+            xml: xmlText
+          })
+        });
+        return currentSelectionKey || lastLoadedSourceName || currentModelMeta.serverPath;
+      }
+
+      throw new Error('This source is read-only in the browser (Quick Scan or drag-drop).');
+    }
+
+    async function saveCurrentDaeToSource() {
+      if (!lastLoadedXmlText) {
+        setBeamReadyStatus('Load a DAE model first.', 'warn');
+        return;
+      }
+
+      try {
+        const label = await writeXmlToCurrentSource(lastLoadedXmlText);
+        setBeamReadyStatus(`Saved current .dae changes to source file: ${label}.`, 'ok');
+      } catch (error) {
+        setBeamReadyStatus(`Save failed: ${error.message}`, 'fail');
+      }
+    }
+
+    async function saveBeamReadyToSource() {
+      if (!lastLoadedXmlText) {
+        setBeamReadyStatus('Load a DAE model first.', 'warn');
+        return;
+      }
+      if (!currentModelMeta) {
+        setBeamReadyStatus('No source file is selected to save.', 'warn');
+        return;
+      }
+
+      try {
+        const result = buildBeamReadyDae(lastLoadedXmlText, { splitByVisibleMeshes: !!els.splitCollisionByMesh.checked });
+        const count = result.collisionGeometryIds.length;
+        const label = await writeXmlToCurrentSource(result.xml);
+        setBeamReadyStatus(`Saved Beam-ready collision changes into source file: ${label} (${count} collision layer(s)).`, 'ok');
+        if (els.previewBeamReady.checked) {
+          await loadXmlText(result.xml, label);
+        }
+      } catch (error) {
+        setBeamReadyStatus(`Save failed: ${error.message}`, 'fail');
+      }
+    }
+
     async function loadFile(file, displayName = '') {
       const txt = await file.text();
-      loadXmlText(txt, displayName || file.name);
+      await loadXmlText(txt, displayName || file.name);
     }
 
     async function loadModelByKey(key) {
@@ -1616,14 +3049,112 @@
       drawPreview(lastRenderData);
     });
 
+    els.beamLighting.addEventListener('change', () => {
+      applyRealtimeViewportSettings();
+      if (lastRenderData) drawPreview(lastRenderData);
+    });
+
+    els.autoRotate.addEventListener('change', () => {
+      applyRealtimeViewportSettings();
+    });
+
+    els.exposureRange.addEventListener('input', () => {
+      applyRealtimeViewportSettings();
+    });
+
+    els.showVisibleLayer.addEventListener('change', () => {
+      refreshLayerPresetButtons();
+      refreshDebugPanel();
+      if (!lastRenderData) return;
+      drawPreview(lastRenderData);
+    });
+
+    els.showCollisionLayer.addEventListener('change', () => {
+      refreshLayerPresetButtons();
+      refreshDebugPanel();
+      if (!lastRenderData) return;
+      drawPreview(lastRenderData);
+    });
+
+    els.layerVisibleOnlyBtn.addEventListener('click', () => {
+      applyLayerPreset('visible');
+    });
+
+    els.layerCollisionOnlyBtn.addEventListener('click', () => {
+      applyLayerPreset('collision');
+    });
+
+    els.layerBothBtn.addEventListener('click', () => {
+      applyLayerPreset('both');
+    });
+
+    els.resetViewBtn.addEventListener('click', () => {
+      resetCameraView();
+      if (realtimeState.active) {
+        fitRealtimeCamera();
+        applyRealtimeViewportSettings();
+      }
+      if (lastRenderData) drawPreview(lastRenderData);
+    });
+
+    els.canvas.addEventListener('mousedown', (e) => {
+      cameraState.dragging = true;
+      cameraState.panMode = e.shiftKey || e.button === 1 || e.button === 2;
+      cameraState.lastX = e.clientX;
+      cameraState.lastY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => {
+      cameraState.dragging = false;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!cameraState.dragging || !lastRenderData) return;
+      const dx = e.clientX - cameraState.lastX;
+      const dy = e.clientY - cameraState.lastY;
+      cameraState.lastX = e.clientX;
+      cameraState.lastY = e.clientY;
+
+      if (cameraState.panMode) {
+        cameraState.panX += dx;
+        cameraState.panY += dy;
+      } else {
+        cameraState.yaw += dx * 0.01;
+        cameraState.pitch += dy * 0.01;
+        const maxPitch = Math.PI * 0.49;
+        if (cameraState.pitch > maxPitch) cameraState.pitch = maxPitch;
+        if (cameraState.pitch < -maxPitch) cameraState.pitch = -maxPitch;
+      }
+
+      drawPreview(lastRenderData);
+    });
+
+    els.canvas.addEventListener('wheel', (e) => {
+      if (!lastRenderData) return;
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.08 : 0.92;
+      cameraState.zoom *= factor;
+      if (cameraState.zoom < 0.15) cameraState.zoom = 0.15;
+      if (cameraState.zoom > 8) cameraState.zoom = 8;
+      drawPreview(lastRenderData);
+    }, { passive: false });
+
+    els.canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+
     els.requireCollision.addEventListener('change', async () => {
       if (!currentSelectionKey) return;
       await loadModelByKey(currentSelectionKey);
     });
 
-    els.sampleBtn.addEventListener('click', () => {
+    els.saveSourceBtn.addEventListener('click', async () => {
+      await saveCurrentDaeToSource();
+    });
+
+    els.sampleBtn.addEventListener('click', async () => {
       setSelectionDetails({ sourceId: 'sample' }, 'sample.dae');
-      loadXmlText(sampleXml(), 'sample.dae');
+      await loadXmlText(sampleXml(), 'sample.dae');
     });
 
     els.copyBeamngPathBtn.addEventListener('click', async () => {
@@ -1632,6 +3163,10 @@
 
     els.copyWorkspacePathBtn.addEventListener('click', async () => {
       await copyTextValue(els.workspacePath.textContent.trim(), 'No workspace path is available for the current selection.');
+    });
+
+    els.copyDebugReportBtn.addEventListener('click', async () => {
+      await copyTextValue(buildDebugReport(), 'No debug report is available yet.');
     });
 
     els.exportIndexJsonBtn.addEventListener('click', () => {
@@ -1644,6 +3179,14 @@
 
     els.exportPreviewPngBtn.addEventListener('click', () => {
       exportCurrentPreviewPng();
+    });
+
+    els.exportBeamReadyBtn.addEventListener('click', () => {
+      exportBeamReadyDae();
+    });
+
+    els.saveBeamReadyBtn.addEventListener('click', async () => {
+      await saveBeamReadyToSource();
     });
 
     for (const evt of ['dragenter', 'dragover']) {
@@ -1670,10 +3213,22 @@
 
     async function init() {
       drawGrid();
+      setFallbackViewport();
+      resetCameraView();
       setSelectionDetails(null, '');
       clearMaterialInfo();
+      setMeshCollectionStatus('Mesh collection detection waits for a loaded model.', 'warn');
+      setBeamReadyStatus('Load a model, then click Save .DAE for normal workflow.', 'warn');
+      applyRealtimeViewportSettings();
+      refreshLayerPresetButtons();
+      refreshDebugPanel();
       if (FS_SUPPORTED && window.indexedDB) {
-        await loadSavedSources();
+        try {
+          await loadSavedSources();
+        } catch (error) {
+          console.warn('Saved source load failed:', error);
+          setConnectionHint(`Saved source restore skipped: ${error.message}`);
+        }
       }
       await refreshAllSources();
 

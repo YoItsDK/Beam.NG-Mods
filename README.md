@@ -91,10 +91,18 @@ For safety, folder mode only auto-updates simple assets with exactly one visible
 	- collision naming check (`Colmesh` / `collision` patterns)
 - The page now exposes a `ShapeEditor Handoff` panel with BeamNG-ready and workspace paths so users can search the same asset inside BeamNG's Asset Browser / Shape Editor.
 - The page now includes an `Asset Tree` panel grouped by folders, so users can browse by structure instead of only the flat dropdown.
+- The viewer is interactive 3D now: drag to rotate, `Shift+drag` to pan, mouse wheel to zoom.
+- The page now includes `Scene Layers And Nodes` filters:
+	- toggle visible/collision layers on and off
+	- enable/disable specific nodes to inspect individual scene pieces
 - The page now includes a `Materials And Textures` panel that reports mesh material slots, material definitions/effects, and texture paths from the DAE.
 - The page now includes a `Batch Export` panel with:
 	- filtered index export (`JSON` / `CSV`)
 	- current preview image export (`PNG`)
+- The page now includes `Beam-Ready DAE Export`:
+	- injects a BeamNG-style precise collision mesh (`Colmesh-*`) for single visible-mesh DAEs
+	- exports a new `*_beam_ready.dae` file
+	- can preview the generated Beam-ready DAE immediately in the same web viewer
 - Enable `Require collision naming` in the page to treat missing collision naming as `FAIL`.
 
 Run the local explorer server directly:
